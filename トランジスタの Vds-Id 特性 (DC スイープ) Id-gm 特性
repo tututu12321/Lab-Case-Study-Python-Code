@@ -1,0 +1,108 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# NMOS and PMOS parameters
+L = 0.5e-6  # Channel length in meters
+W = 100e-6  # Channel width in meters
+Cox = 2.5e-3  # Oxide capacitance per unit area in F/m^2
+mu_n = 0.05  # Mobility of electrons for NMOS (A/V^2)
+mu_p = 0.02  # Mobility of holes for PMOS (A/V^2)
+Vth_n = 0.7  # Threshold voltage for NMOS (V)
+Vth_p = -0.7  # Threshold voltage for PMOS (V)
+lambda_n = 0.1  # Channel length modulation parameter for NMOS
+lambda_p = 0.1  # Channel length modulation parameter for PMOS
+
+# Calculate K factors
+Kn = mu_n * Cox * (W / L)  # Process transconductance for NMOS
+Kp = mu_p * Cox * (W / L)  # Process transconductance for PMOS
+
+# Define Vds and Vgs ranges for the sweeps
+Vds_values = np.linspace(0, 3, 100)  # Vds range from 0V to 3V
+Vgs_values_n = np.arange(0.6, 1.0, 0.05)  # Vgs range for NMOS from 0.6V to 0.9V
+Vgs_values_p = np.arange(-1.0, -0.6, 0.05)  # Vgs range for PMOS from -0.9V to -0.6V
+
+# NMOS Vds-Id Characteristics with Channel Length Modulation
+plt.figure(figsize=(12, 5))
+for Vgs in Vgs_values_n:
+    Id = np.where(
+        Vgs > Vth_n,
+        np.where(
+            Vds_values < Vgs - Vth_n,  # Triode region
+            Kn * ((Vgs - Vth_n) * Vds_values - 0.5 * Vds_values ** 2),
+            0.5 * Kn * (Vgs - Vth_n) ** 2 * (1 + lambda_n * Vds_values)  # Saturation with channel modulation
+        ),
+        0  # Cutoff region
+    )
+    plt.plot(Vds_values, Id * 1e3, label=f'Vgs = {Vgs:.2f} V')  # Id in mA
+
+plt.title("NMOS Vds-Id Characteristics with Channel Length Modulation")
+plt.xlabel("Vds (V)")
+plt.ylabel("Id (mA)")
+plt.legend()
+plt.grid()
+plt.show()
+
+# PMOS Vds-Id Characteristics with Channel Length Modulation
+plt.figure(figsize=(12, 5))
+for Vgs in Vgs_values_p:
+    Id = np.where(
+        Vgs < Vth_p,
+        np.where(
+            Vds_values < abs(Vgs - Vth_p),  # Triode region
+            Kp * ((abs(Vgs) - abs(Vth_p)) * Vds_values - 0.5 * Vds_values ** 2),
+            0.5 * Kp * (abs(Vgs) - abs(Vth_p)) ** 2 * (1 + lambda_p * Vds_values)  # Saturation with channel modulation
+        ),
+        0  # Cutoff region
+    )
+    plt.plot(Vds_values, Id * 1e3, label=f'Vgs = {Vgs:.2f} V')  # Id in mA
+
+plt.title("PMOS Vds-Id Characteristics with Channel Length Modulation")
+plt.xlabel("Vds (V)")
+plt.ylabel("Id (mA)")
+plt.legend()
+plt.grid()
+plt.show()
+
+# NMOS Vgs-Id Characteristics for fixed Vds with Channel Length Modulation
+Vds_fixed = 1.0  # Fixed Vds for Vgs-Id plot
+Vgs_values = np.linspace(0, 1.2, 100)
+Id_n = np.where(
+    Vgs_values > Vth_n,
+    np.where(
+        Vgs_values - Vth_n > Vds_fixed,  # Triode region
+        Kn * ((Vgs_values - Vth_n) * Vds_fixed - 0.5 * Vds_fixed ** 2),
+        0.5 * Kn * (Vgs_values - Vth_n) ** 2 * (1 + lambda_n * Vds_fixed)  # Saturation with channel modulation
+    ),
+    0  # Cutoff region
+)
+
+plt.figure(figsize=(8, 5))
+plt.plot(Vgs_values, Id_n * 1e3, 'g', label="NMOS Vgs-Id")  # Id in mA
+plt.title("NMOS Vgs-Id Characteristics with Channel Length Modulation")
+plt.xlabel("Vgs (V)")
+plt.ylabel("Id (mA)")
+plt.legend()
+plt.grid()
+plt.show()
+
+# PMOS Vgs-Id Characteristics for fixed Vds with Channel Length Modulation
+Vds_fixed = 1.0  # Fixed Vds for Vgs-Id plot
+Vgs_values = np.linspace(-1.2, 0, 100)
+Id_p = np.where(
+    Vgs_values < Vth_p,
+    np.where(
+        abs(Vgs_values - Vth_p) > Vds_fixed,  # Triode region
+        Kp * ((abs(Vgs_values) - abs(Vth_p)) * Vds_fixed - 0.5 * Vds_fixed ** 2),
+        0.5 * Kp * (abs(Vgs_values) - abs(Vth_p)) ** 2 * (1 + lambda_p * Vds_fixed)  # Saturation with channel modulation
+    ),
+    0  # Cutoff region
+)
+
+plt.figure(figsize=(8, 5))
+plt.plot(Vgs_values, Id_p * 1e3, 'r', label="PMOS Vgs-Id")  # Id in mA
+plt.title("PMOS Vgs-Id Characteristics with Channel Length Modulation")
+plt.xlabel("Vgs (V)")
+plt.ylabel("Id (mA)")
+plt.legend()
+plt.grid()
+plt.show()
