@@ -1,0 +1,52 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Given parameters
+gain_dB = 56  # Gain in dB
+fc = 410e3  # Cutoff frequency in Hz
+
+# Convert gain from dB to linear scale
+gain_linear = 10**(gain_dB / 20)
+
+# Calculate the cutoff angular frequency
+omega_c = 2 * np.pi * fc
+
+# Define the transfer function H(s) = A / (1 + s / ωc)
+numerator = [gain_linear]  # Numerator of the transfer function
+denominator = [1 / omega_c, 1]  # Denominator of the transfer function
+
+# Create a transfer function system
+system = signal.TransferFunction(numerator, denominator)
+
+# Frequency response
+frequencies = np.logspace(3, 7, 1000)  # Frequency range from 1 kHz to 10 MHz
+w, mag, phase = signal.bode(system, frequencies)
+
+# Plotting the Bode plot
+plt.figure(figsize=(12, 8))
+
+# Magnitude plot
+plt.subplot(2, 1, 1)
+plt.semilogx(w / (2 * np.pi), mag, label="Magnitude (Gain)")
+plt.axhline(y=gain_dB - 3, color="red", linestyle="--", label="Cutoff (-3 dB)")
+plt.title("Bode Plot of First-Order System with Gain and Cutoff Frequency")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Magnitude (dB)")
+plt.legend()
+plt.grid(True)
+
+# Phase plot
+plt.subplot(2, 1, 2)
+plt.semilogx(w / (2 * np.pi), phase, label="Phase")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Phase (degrees)")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# Print GB product
+GB_product = gain_linear * fc
+print(f"Gain-Bandwidth Product (GB): {GB_product:.2e}")
