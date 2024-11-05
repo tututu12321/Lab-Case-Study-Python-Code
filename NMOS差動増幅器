@@ -1,0 +1,49 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Specifications
+gain = 10  # Amplifier gain
+V_offset = 1.5  # Offset voltage for the input signals
+Vpp_input = 0.02  # Peak-to-peak voltage for each input signal (20 mV)
+frequency = 1e6  # Frequency of the input signal in Hz (1 MHz)
+sampling_rate = 100 * frequency  # Sampling rate for accurate representation
+duration = 3 / frequency  # Duration to plot 3 cycles
+
+# Time array
+time = np.linspace(0, duration, int(sampling_rate * duration))
+
+# Generate two input signals with a 180-degree phase shift and offset
+input_signal_1 = V_offset + (Vpp_input / 2) * np.sin(2 * np.pi * frequency * time)
+input_signal_2 = V_offset + (Vpp_input / 2) * np.sin(2 * np.pi * frequency * time + np.pi)
+
+# Differential amplifier output signals with gain applied to the difference
+output_signal_1 = 2 + gain * ((input_signal_1 - input_signal_2) / 2)
+output_signal_2 = 2 - gain * ((input_signal_1 - input_signal_2) / 2)
+
+# Plotting the results
+plt.figure(figsize=(10, 8))
+
+# Plot the input signals
+plt.subplot(2, 1, 1)
+plt.plot(time * 1e6, input_signal_1, label="V(V7:+)", color="green", marker='v', markevery=50)
+plt.plot(time * 1e6, input_signal_2, label="V(V6:+)", color="red", marker='^', markevery=50)
+plt.title("Input Signals")
+plt.xlabel("Time (µs)")
+plt.ylabel("Voltage (V)")
+plt.ylim(1.48, 1.52)
+plt.legend(loc="upper right")
+plt.grid(True)
+
+# Plot the output signals
+plt.subplot(2, 1, 2)
+plt.plot(time * 1e6, output_signal_1, label="V(R1:1)", color="red", marker='s', markevery=50)
+plt.plot(time * 1e6, output_signal_2, label="V(R2:1)", color="green", marker='D', markevery=50)
+plt.title("Output Signals")
+plt.xlabel("Time (µs)")
+plt.ylabel("Voltage (V)")
+plt.ylim(1.8, 2.2)
+plt.legend(loc="upper right")
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
