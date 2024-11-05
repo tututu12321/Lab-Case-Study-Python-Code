@@ -1,0 +1,117 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.fft import fft
+
+# Parameter settings
+Fs = 1000  # Sampling frequency in Hz
+Fin = 50   # Input signal frequency in Hz
+duration = 1  # Duration in seconds
+t = np.linspace(0, duration, int(Fs * duration), endpoint=False)  # Time axis
+
+# Generate a sine wave
+amplitude = 1
+signal = amplitude * np.sin(2 * np.pi * Fin * t)
+
+# 8-bit A/D conversion
+def adc_8bit(signal):
+    # Quantize the signal to 8-bit
+    quantized_signal = np.round((signal + 1) * (2**7)) / (2**7) - 1
+    return quantized_signal
+
+# 10-bit A/D conversion
+def adc_10bit(signal):
+    # Quantize the signal to 10-bit
+    quantized_signal = np.round((signal + 1) * (2**9)) / (2**9) - 1
+    return quantized_signal
+
+# Calculate the power spectrum using FFT
+def calculate_power_spectrum(signal, Fs):
+    N = len(signal)
+    yf = fft(signal)
+    xf = np.fft.fftfreq(N, 1 / Fs)[:N // 2]
+    power_spectrum = 2.0 / N * np.abs(yf[:N // 2])**2
+    return xf, power_spectrum
+
+# Calculate SNR
+def calculate_snr(signal, Fs):
+    xf, power_spectrum = calculate_power_spectrum(signal, Fs)
+    # Sum the power around the signal frequency to find the signal power
+    signal_power = np.sum(power_spectrum[(xf >= Fin - 1) & (xf <= Fin + 1)])
+    noise_power = np.sum(power_spectrum) - signal_power  # Noise power
+    snr = 10 * np.log10(signal_power / noise_power)  # SNR calculation in dB
+    return snr
+
+# Calculate SQNR
+def calculate_sqnr(signal, quantized_signal):
+    signal_power = np.mean(signal**2)  # Original signal power
+    quantization_noise_power = np.mean((signal - quantized_signal)**2)  # Quantization noise power
+    sqnr = 10 * np.log10(signal_power / quantization_noise_power)  # SQNR calculation in dB
+    return sqnr
+
+# Calculate SNDR
+def calculate_sndr(signal, Fs):
+    xf, power_spectrum = calculate_power_spectrum(signal, Fs)
+    signal_power = np.sum(power_spectrum[(xf >= Fin - 1) & (xf <= Fin + 1)])
+    total_noise_power = np.sum(power_spectrum) - signal_power  # Total noise and distortion power
+    sndr = 10 * np.log10(signal_power / total_noise_power)  # SNDR calculation in dB
+    return sndr
+
+# Perform A/D conversion for 8-bit and 10-bit
+adc_8bit_signal = adc_8bit(signal)
+adc_10bit_signal = adc_10bit(signal)
+
+# Calculate power spectra
+xf, power_spectrum_8bit = calculate_power_spectrum(adc_8bit_signal, Fs)
+_, power_spectrum_10bit = calculate_power_spectrum(adc_10bit_signal, Fs)
+
+# Calculate SNR
+snr_8bit = calculate_snr(adc_8bit_signal, Fs)
+snr_10bit = calculate_snr(adc_10bit_signal, Fs)
+
+# Calculate SQNR
+sqnr_8bit = calculate_sqnr(signal, adc_8bit_signal)
+sqnr_10bit = calculate_sqnr(signal, adc_10bit_signal)
+
+# Calculate SNDR
+sndr_8bit = calculate_sndr(adc_8bit_signal, Fs)
+sndr_10bit = calculate_sndr(adc_10bit_signal, Fs)
+
+# Display results in the console
+print(f"8-bit ADC SNR: {snr_8bit:.2f} dB")
+print(f"10-bit ADC SNR: {snr_10bit:.2f} dB")
+print(f"8-bit ADC SQNR: {sqnr_8bit:.2f} dB")
+print(f"10-bit ADC SQNR: {sqnr_10bit:.2f} dB")
+print(f"8-bit ADC SNDR: {sndr_8bit:.2f} dB")
+print(f"10-bit ADC SNDR: {sndr_10bit:.2f} dB")
+
+# Plot results
+plt.figure(figsize=(14, 10))
+
+# Plot the original and ADC converted signals
+plt.subplot(3, 1, 1)
+plt.plot(t, signal, label='Original Signal')
+plt.plot(t, adc_8bit_signal, label='8-bit ADC Signal', linestyle='--')
+plt.plot(t, adc_10bit_signal, label='10-bit ADC Signal', linestyle='-.')
+plt.legend()
+plt.title('Original and ADC Converted Signals')
+plt.xlabel('Time [s]')
+plt.ylabel('Amplitude')
+
+# Power spectrum of the 8-bit ADC signal
+plt.subplot(3, 1, 2)
+plt.plot(xf, power_spectrum_8bit)
+plt.title(f'Power Spectrum of 8-bit ADC Signal\n'
+          f'SNR: {snr_8bit:.2f} dB, SQNR: {sqnr_8bit:.2f} dB, SNDR: {sndr_8bit:.2f} dB')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Power')
+
+# Power spectrum of the 10-bit ADC signal
+plt.subplot(3, 1, 3)
+plt.plot(xf, power_spectrum_10bit)
+plt.title(f'Power Spectrum of 10-bit ADC Signal\n'
+          f'SNR: {snr_10bit:.2f} dB, SQNR: {sqnr_10bit:.2f} dB, SNDR: {sndr_10bit:.2f} dB')
+plt.xlabel('Frequency [Hz]')
+plt.ylabel('Power')
+
+plt.tight_layout()
+plt.show()
