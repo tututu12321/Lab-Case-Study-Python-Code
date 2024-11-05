@@ -1,0 +1,60 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 時間軸設定
+time = np.linspace(0, 1, 500)  # 0から1秒まで、500点
+
+# 1. 直流信号 (DC Signal)
+dc_signal = np.full_like(time, 1)  # 振幅1の直流信号
+
+# 2. サイン波信号 (Sine Wave Signal)
+sine_wave = np.sin(2 * np.pi * 5 * time)  # 周波数5Hzの正弦波
+
+# 3. 矩形波 (Square Wave)
+square_wave = signal.square(2 * np.pi * 5 * time)  # 周波数5Hzの矩形波
+
+# 4. 三角波 (Triangle Wave)
+triangle_wave = signal.sawtooth(2 * np.pi * 5 * time, 0.5)  # 周波数5Hzの三角波
+
+# 5. のこぎり波 (Sawtooth Wave)
+sawtooth_wave = signal.sawtooth(2 * np.pi * 5 * time)  # 周波数5Hzののこぎり波
+
+# 6. ランダム信号 (Random Signal)
+random_signal = np.random.normal(0, 1, time.shape)  # 平均0、標準偏差1のランダム信号
+
+# 7. インパルス信号 (Impulse Signal)
+impulse_signal = np.zeros_like(time)
+impulse_signal[250] = 1  # 中心にインパルスを設定
+
+# 8. ステップ信号 (Step Signal)
+step_signal = np.heaviside(time - 0.5, 1)  # 0.5秒からステップアップ
+
+# 9. ランプ信号 (Ramp Signal)
+ramp_signal = time  # 時間に比例するランプ信号
+
+# 各信号をプロット
+plt.figure(figsize=(12, 18))
+
+signals = [
+    ("DC Signal", dc_signal),
+    ("Sine Wave", sine_wave),
+    ("Square Wave", square_wave),
+    ("Triangle Wave", triangle_wave),
+    ("Sawtooth Wave", sawtooth_wave),
+    ("Random Signal", random_signal),
+    ("Impulse Signal", impulse_signal),
+    ("Step Signal", step_signal),
+    ("Ramp Signal", ramp_signal),
+]
+
+for i, (title, signal_data) in enumerate(signals, 1):
+    plt.subplot(9, 1, i)
+    plt.plot(time, signal_data)
+    plt.title(title)
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+    plt.grid(True)
+
+plt.tight_layout()
+plt.show()
