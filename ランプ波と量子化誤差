@@ -1,0 +1,45 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+V_ref = 1.23  # Reference voltage in volts
+ADC_bits = 8  # Number of bits for the ADC
+V_LSB = (2 * V_ref) / (2**ADC_bits - 1)  # LSB voltage (9.647 mV)
+ADC_levels = 2**ADC_bits  # Total quantization levels (256 for 8-bit)
+
+# Generate a ramp input signal
+time = np.linspace(0, 1, 1000)  # 1-second time vector with 1000 samples
+V_in = np.linspace(0, 2 * V_ref, 1000)  # Ramp input from 0 to 2*V_ref volts
+
+# Simulate ADC quantization
+quantized_output = np.round(V_in / V_LSB) * V_LSB
+quantized_output = np.clip(quantized_output, 0, V_ref * 2)  # Clip to max range of ADC
+
+# Calculate quantization error
+quantization_error = V_in - quantized_output
+
+# Plotting the results
+plt.figure(figsize=(10, 8))
+
+# Original ramp input
+plt.subplot(2, 1, 1)
+plt.plot(time, V_in, label="Input Ramp Signal", color="blue")
+plt.step(time, quantized_output, label="Quantized Output (ADC)", color="red", where="post")
+plt.title("ADC Quantization of Ramp Input")
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.legend()
+plt.grid(True)
+
+# Quantization error plot
+plt.subplot(2, 1, 2)
+plt.plot(time, quantization_error, label="Quantization Error", color="purple")
+plt.axhline(0, color="black", linestyle="--")
+plt.title("Quantization Error")
+plt.xlabel("Time (s)")
+plt.ylabel("Error (V)")
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
