@@ -1,0 +1,54 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Constants and parameter settings
+VDD = 3.3  # Power supply voltage (V)
+Rd = 1e3   # Drain resistor (1kΩ)
+Id = 1e-3  # Drain current (1 mA)
+Vgs = 1.2  # Gate-Source voltage (V)
+Vth = 0.7  # NMOS threshold voltage (V)
+gm = 10 / Rd  # Transconductance (S) - set to achieve a gain of 10
+frequency = 1e3  # Frequency of input signal (1 kHz)
+V_in_amp = 25e-3  # Amplitude of input signal (peak amplitude is 25 mV for 50 mVpp)
+time = np.linspace(0, 5 / frequency, 1000)  # Simulation time range
+
+# Generate the input signal (sine wave)
+V_in = V_in_amp * np.sin(2 * np.pi * frequency * time)
+
+# Generate the output signal (small-signal analysis)
+V_out = VDD - Rd * (Id + gm * V_in)
+
+# Calculate the peak-to-peak voltages of input and output
+V_in_pp = 2 * V_in_amp  # 50 mV peak-to-peak
+V_out_pp = V_out.max() - V_out.min()  # Measure peak-to-peak of output
+
+# Calculate gain
+gain_linear = V_out_pp / V_in_pp
+gain_db = 20 * np.log10(gain_linear)
+
+# Print the results
+print(f"Linear Gain: {gain_linear:.2f}")
+print(f"Gain in dB: {gain_db:.2f} dB")
+
+# Plotting
+plt.figure(figsize=(12, 6))
+
+# Input signal plot
+plt.subplot(2, 1, 1)
+plt.plot(time * 1e3, V_in * 1e3, 'g')
+plt.title("NMOS Common Source Amplifier")
+plt.ylabel("Input Voltage (mV)")
+plt.xlabel("Time (ms)")
+plt.grid()
+plt.legend(["Input Signal (50 mVpp)"])
+
+# Output signal plot
+plt.subplot(2, 1, 2)
+plt.plot(time * 1e3, V_out, 'r')
+plt.ylabel("Output Voltage (V)")
+plt.xlabel("Time (ms)")
+plt.grid()
+plt.legend(["Output Signal (~500 mVpp)"])
+
+plt.tight_layout()
+plt.show()
