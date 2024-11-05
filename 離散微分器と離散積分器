@@ -1,0 +1,44 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# Sampling period
+T = 0.01  # Adjust this as needed
+
+# Discrete Differentiator Transfer Function H(z) = (z - 1) / T
+num_diff = [1, -1]
+den_diff = [T]
+system_diff = signal.dlti(num_diff, den_diff, dt=T)
+
+# Discrete Integrator Transfer Function H(z) = T / (z - 1)
+num_int = [T]
+den_int = [1, -1]
+system_int = signal.dlti(num_int, den_int, dt=T)
+
+# Frequency range for plotting (normalized by sampling frequency)
+w, mag_diff, phase_diff = signal.dbode(system_diff, n=500)
+_, mag_int, phase_int = signal.dbode(system_int, n=500)
+
+# Plotting Bode Diagram for Differentiator
+plt.figure()
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag_diff)  # Magnitude plot
+plt.title('Bode Plot for Discrete Differentiator')
+plt.ylabel('Magnitude (dB)')
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase_diff)  # Phase plot
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (rad/sample)')
+
+# Plotting Bode Diagram for Integrator
+plt.figure()
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag_int)  # Magnitude plot
+plt.title('Bode Plot for Discrete Integrator')
+plt.ylabel('Magnitude (dB)')
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase_int)  # Phase plot
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (rad/sample)')
+
+plt.show()
