@@ -1,0 +1,18 @@
+import pandas as pd
+
+# Data from the table
+data = {
+    "bit数": ["LSB", "1", "2", "3", "4", "5", "6", "MSB", "全ビット1"],
+    "1回目 [mV]": [8.84, 18.98, 40.39, 77.04, 153.08, 308.80, 619.64, 1238.07, 2476.20],
+    "2回目 [mV]": [9.57, 19.06, 37.37, 79.70, 150.30, 314.30, 620.57, 1238.83, 2476.44],
+    "3回目 [mV]": [9.74, 18.57, 37.41, 77.07, 156.11, 308.96, 622.44, 1238.40, 2476.66]
+}
+
+# Create a DataFrame
+df = pd.DataFrame(data)
+
+# Calculate the average for each row and add it as a new column
+df["平均 [mV]"] = df[["1回目 [mV]", "2回目 [mV]", "3回目 [mV]"]].mean(axis=1)
+
+# Display the DataFrame
+print(df)
