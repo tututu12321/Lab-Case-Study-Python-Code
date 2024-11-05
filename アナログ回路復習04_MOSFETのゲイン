@@ -1,0 +1,13 @@
+# Given parameters
+g_m = 5e-3         # Transconductance (S)
+R_L = 10e3         # Load resistance (ohms)
+r_o = 20e3         # Output resistance due to channel length modulation (ohms)
+
+# Ideal gain without channel length modulation
+A_v_ideal = -g_m * R_L
+print("Ideal Gain (without channel length modulation):", A_v_ideal)
+
+# Real gain with channel length modulation
+R_parallel = (R_L * r_o) / (R_L + r_o)  # Parallel combination of R_L and r_o
+A_v_real = -g_m * R_parallel
+print("Real Gain (with channel length modulation):", A_v_real)
