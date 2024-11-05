@@ -1,0 +1,50 @@
+import numpy as np
+
+# 1. Solving a System of Linear Equations (Ax = b)
+print("1. Solving a System of Linear Equations (Ax = b)")
+A = np.array([[3, 1], [1, 2]])
+b = np.array([9, 8])
+x = np.linalg.solve(A, b)
+print("Solution x:", x)
+print("\n")
+
+# 2. Basic Matrix Operations (Transpose and Determinant)
+print("2. Basic Matrix Operations (Transpose and Determinant)")
+# Define matrix A
+A = np.array([[4, 2], [3, 1]])
+# Transpose of A
+A_transpose = A.T
+print("Transpose of A:\n", A_transpose)
+# Determinant of A
+det_A = np.linalg.det(A)
+print("Determinant of A:", det_A)
+print("\n")
+
+# 3. Diagonalization of a Matrix
+print("3. Diagonalization of a Matrix")
+# Define a square matrix for diagonalization
+B = np.array([[5, 4], [1, 2]])
+# Eigenvalues and eigenvectors
+eigenvalues, eigenvectors = np.linalg.eig(B)
+print("Eigenvalues:", eigenvalues)
+print("Eigenvectors:\n", eigenvectors)
+# Diagonal matrix with eigenvalues
+D = np.diag(eigenvalues)
+print("Diagonal matrix D:\n", D)
+# Reconstruct the original matrix using B = PDP⁻¹
+P = eigenvectors
+P_inv = np.linalg.inv(P)
+B_reconstructed = P @ D @ P_inv
+print("Reconstructed B from eigen decomposition:\n", B_reconstructed)
+print("\n")
+
+# 4. Inverse of a Matrix
+print("4. Inverse of a Matrix")
+# Define matrix A for inverse calculation
+A = np.array([[4, 7], [2, 6]])
+# Check if A is invertible (determinant should not be zero)
+if np.linalg.det(A) != 0:
+    A_inv = np.linalg.inv(A)
+    print("Inverse of A:\n", A_inv)
+else:
+    print("Matrix A is singular and does not have an inverse.")
