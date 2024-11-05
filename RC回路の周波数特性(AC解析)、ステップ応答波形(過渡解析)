@@ -1,0 +1,79 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import convolve
+
+# RC circuit parameters
+R = 1e3  # Resistance in ohms
+C = 100e-12  # Capacitance in farads
+
+# Task 1: AC Analysis (Frequency Response)
+frequencies = np.logspace(1, 8, 500)  # Frequency range from 10 Hz to 100 MHz
+omega = 2 * np.pi * frequencies
+H = 1 / (1 + 1j * omega * R * C)  # Transfer function H(omega)
+
+magnitude = 20 * np.log10(np.abs(H))  # Magnitude in dB
+phase = np.angle(H, deg=True)  # Phase in degrees
+
+# AC Analysis Plot (Bode Plot)
+plt.figure(figsize=(12, 8))
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, magnitude, 'r')
+plt.title("AC Analysis (Frequency Response) of RC Circuit")
+plt.ylabel("Magnitude (dB)")
+plt.grid(True)
+
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase, 'r')
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Phase (degrees)")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+# Task 2: Transient Analysis (Step Response)
+tau = R * C  # Time constant
+t = np.linspace(0, 5 * tau, 1000)  # Time range for step response
+V_out_step = 1 - np.exp(-t / tau)  # Step response
+
+# Transient Analysis Plot (Step Response)
+plt.figure(figsize=(8, 4))
+plt.plot(t * 1e6, V_out_step, 'g')  # Convert time to microseconds for display
+plt.title("Transient Analysis (Step Response) of RC Circuit")
+plt.xlabel("Time (µs)")
+plt.ylabel("V_out (V)")
+plt.grid()
+plt.ylim(-0.1, 1.1)
+plt.show()
+
+# Task 3: Transient Analysis for Low-Frequency Square Wave Input
+# Define lower frequency for square wave to observe transient response
+square_freq = 10e3  # Frequency of the square wave (10 kHz)
+t_square = np.linspace(0, 5 / square_freq, 1000)  # Time range for square wave
+square_wave = np.sign(np.sin(2 * np.pi * square_freq * t_square))  # Generate square wave
+
+# RC Circuit Impulse Response for convolution
+impulse_response = (1 / tau) * np.exp(-t / tau)  # Impulse response of the RC circuit
+
+# Convolve the square wave with the impulse response to get the output
+V_out_square = convolve(square_wave, impulse_response, mode='same') * (t_square[1] - t_square[0])
+
+# Plotting the Low-Frequency Square Wave Input and RC Circuit Output
+plt.figure(figsize=(12, 6))
+plt.subplot(2, 1, 1)
+plt.plot(t_square * 1e6, square_wave, label="Square Wave Input")
+plt.title("Low-Frequency Square Wave Input to RC Circuit")
+plt.xlabel("Time (µs)")
+plt.ylabel("Amplitude")
+plt.grid()
+plt.legend()
+
+plt.subplot(2, 1, 2)
+plt.plot(t_square * 1e6, V_out_square, 'b', label="RC Circuit Output")
+plt.title("RC Circuit Output for Low-Frequency Square Wave Input")
+plt.xlabel("Time (µs)")
+plt.ylabel("V_out (V)")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
