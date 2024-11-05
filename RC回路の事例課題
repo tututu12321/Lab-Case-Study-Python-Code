@@ -1,0 +1,66 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# RC circuit parameters
+R = 1e3  # Resistance in ohms
+C = 100e-12  # Capacitance in farads
+
+# Frequency range for Bode plot
+frequencies = np.logspace(3, 8, 500)  # 1 kHz to 100 MHz
+omega = 2 * np.pi * frequencies
+
+# Calculate the transfer function H(omega)
+H = 1 / (1 + 1j * omega * R * C)
+
+# Magnitude and phase of H(omega)
+magnitude = 20 * np.log10(np.abs(H))
+phase = np.angle(H, deg=True)
+
+# Bode plot
+plt.figure(figsize=(12, 10))
+
+# Magnitude plot
+plt.subplot(3, 1, 1)
+plt.semilogx(frequencies, magnitude)
+plt.title("Bode Plot of RC Circuit")
+plt.ylabel("Magnitude (dB)")
+plt.grid(True)
+
+# Phase plot
+plt.subplot(3, 1, 2)
+plt.semilogx(frequencies, phase)
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Phase (degrees)")
+plt.grid(True)
+
+# -3dB cutoff frequency
+cutoff_freq = 1 / (2 * np.pi * R * C)
+print(f"The -3dB cutoff frequency is approximately {cutoff_freq:.2f} Hz.")
+
+# Step response of the RC circuit
+# Time constant
+tau = R * C
+
+# Time range
+t = np.linspace(0, 5 * tau, 1000)
+
+# Step response
+V_out = 1 - np.exp(-t / tau)
+
+# Time to reach 0.9
+time_to_reach_0_9 = -tau * np.log(1 - 0.9)
+print(f"The time for V_out to reach 0.9 is approximately {time_to_reach_0_9:.6f} seconds.")
+
+# Plot the step response
+plt.subplot(3, 1, 3)
+plt.plot(t, V_out, label=r"$V_{\text{out}}(t)$")
+plt.axhline(0.9, color="red", linestyle="--", label="0.9 Level")
+plt.axvline(time_to_reach_0_9, color="green", linestyle="--", label=f"Time to reach 0.9: {time_to_reach_0_9:.6f} s")
+plt.title("Step Response of RC Circuit")
+plt.xlabel("Time (s)")
+plt.ylabel("V_out (V)")
+plt.legend()
+plt.grid()
+
+plt.tight_layout()
+plt.show()
