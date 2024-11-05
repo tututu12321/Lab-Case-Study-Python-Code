@@ -1,0 +1,81 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import butter, filtfilt
+
+# Generate analog input signal
+fs = 1000  # Sampling frequency
+f = 5  # Frequency of the input signal
+t = np.linspace(0, 1, fs)  # Time axis
+analog_signal = 0.5 * np.sin(2 * np.pi * f * t)  # Input analog signal
+
+# Delta-Sigma modulator operation
+output_bits = []  # Initialize output bitstream
+integrator_outputs = []  # Initialize integrator output storage
+integrator = 0  # Initial integrator value
+Vref = 1  # Reference voltage for modulation
+
+for va in analog_signal:
+    # Calculate the subtraction circuit (Δ)
+    if integrator >= 0:
+        # When the integrator output is non-negative
+        delta = va - Vref
+    else:
+        # When the integrator output is negative
+        delta = va + Vref
+    
+    # Update the integrator
+    integrator += delta
+    
+    # Output bit generation (1-bit generation)
+    if integrator >= 0:
+        bit = 1
+    else:
+        bit = 0
+    
+    # Append the bit to the output bitstream
+    output_bits.append(bit)
+    
+    # Record the integrator output
+    integrator_outputs.append(integrator)
+
+# Apply low-pass filter
+def butter_lowpass_filter(data, cutoff, fs, order=5):
+    nyquist = 0.5 * fs
+    normal_cutoff = cutoff / nyquist
+    b, a = butter(order, normal_cutoff, btype='low', analog=False)
+    y = filtfilt(b, a, data)
+    return y
+
+cutoff_frequency = 10  # Cutoff frequency
+filtered_signal = butter_lowpass_filter(output_bits, cutoff_frequency, fs)
+
+# Plotting
+fig, axs = plt.subplots(4, 1, figsize=(12, 10), sharex=True)
+
+# Plot analog input signal
+axs[0].plot(t, analog_signal, label='Analog Input Signal')
+axs[0].set_title('Analog Input Signal')
+axs[0].set_ylabel('Amplitude')
+axs[0].legend()
+
+# Plot integrator output
+axs[1].plot(t, integrator_outputs, label='Integrator Output')
+axs[1].set_title('Integrator Output')
+axs[1].set_ylabel('Amplitude')
+axs[1].legend()
+
+# Plot Delta-Sigma modulated bitstream
+axs[2].step(t, output_bits, where='mid', label='Delta-Sigma Modulated Bitstream')
+axs[2].set_title('Delta-Sigma Modulated Bitstream')
+axs[2].set_ylabel('Bit Value')
+axs[2].legend()
+
+# Plot filtered signal after low-pass filtering
+axs[3].plot(t, filtered_signal, label='Filtered Signal (Lowpass)')
+axs[3].set_title('Filtered Signal (Lowpass)')
+axs[3].set_xlabel('Time [s]')
+axs[3].set_ylabel('Amplitude')
+axs[3].legend()
+
+plt.tight_layout()
+plt.show()
