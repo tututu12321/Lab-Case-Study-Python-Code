@@ -1,0 +1,43 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# パラメータの設定
+gm = 1e-3  # トランスコンダクタンス (S)
+ro = 100e3  # 増幅素子の出力抵抗 (Ω)
+RD = 10e3  # ドレイン側の負荷抵抗 (Ω)
+RL = 10e3  # 負荷抵抗 (Ω)
+CC = 1e-12  # カットオフ周波数を決定するコンデンサ (F)
+
+# 並列抵抗の計算
+parallel_ro_RD = 1 / (1 / ro + 1 / RD)  # ro || RD
+
+# 伝達関数の分子と分母の係数
+num = [-gm * parallel_ro_RD * RL]
+den = [parallel_ro_RD * RL * CC, parallel_ro_RD + RL]
+
+# 伝達関数の作成
+system = signal.TransferFunction(num, den)
+
+# 周波数応答の取得
+w, mag, phase = signal.bode(system)
+
+# ボード線図のプロット
+plt.figure(figsize=(10, 8))
+
+# 利得線図 (Magnitude Plot)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # 利得線図
+plt.title("Bode Plot")
+plt.ylabel("Magnitude (dB)")
+plt.grid(True, which="both", ls="--")
+
+# 位相線図 (Phase Plot)
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # 位相線図
+plt.xlabel("Frequency (rad/s)")
+plt.ylabel("Phase (degrees)")
+plt.grid(True, which="both", ls="--")
+
+plt.tight_layout()
+plt.show()
