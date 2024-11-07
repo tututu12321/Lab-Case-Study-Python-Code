@@ -1,0 +1,54 @@
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# 伝達関数のパラメータ設定（例: 適切な数値を入力）
+# ここでは、適当な2次システムの伝達関数を例として使用
+num = [1]       # 分子
+den = [1, 0.1, 1]  # 分母
+
+# 伝達関数の作成
+system = signal.TransferFunction(num, den)
+
+# 周波数応答の取得
+w, mag, phase = signal.bode(system)
+
+# ボード線図のプロット
+plt.figure(figsize=(10, 8))
+
+# 利得線図 (Magnitude Plot)
+plt.subplot(2, 1, 1)
+plt.semilogx(w, mag)  # 利得線図
+plt.axhline(0, color='red', linestyle='--', label='0 dB (Gain Margin Reference)')
+plt.ylabel('Magnitude (dB)')
+plt.title('Bode Plot')
+plt.legend()
+plt.grid(True, which="both", ls="--")
+
+# 位相線図 (Phase Plot)
+plt.subplot(2, 1, 2)
+plt.semilogx(w, phase)  # 位相線図
+plt.axhline(-180, color='red', linestyle='--', label='-180° (Phase Margin Reference)')
+plt.ylabel('Phase (degrees)')
+plt.xlabel('Frequency (rad/s)')
+plt.legend()
+plt.grid(True, which="both", ls="--")
+
+# 利得余裕と位相余裕の計算
+gain_margin = None
+phase_margin = None
+
+# 利得が0 dBになる周波数（クロスオーバー周波数）を探す
+for i in range(len(mag)):
+    if mag[i] <= 0:
+        gain_margin = -mag[i]  # 0 dBからの距離
+        phase_margin = 180 + phase[i]  # -180度からの距離
+        break
+
+# 結果の表示
+print("Gain Margin (利得余裕):", gain_margin, "dB")
+print("Phase Margin (位相余裕):", phase_margin, "degrees")
+
+plt.show()
+```
