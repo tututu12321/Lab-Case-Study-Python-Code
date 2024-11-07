@@ -1,0 +1,30 @@
+```python
+# Parameter settings
+V_DD = 1.8  # Supply voltage (V)
+W = 20e-6  # Channel width (m)
+L = 2e-6  # Channel length (m)
+V_eff = 0.2  # Effective voltage (V)
+V_DS = 0.9  # Drain-source voltage (V)
+V_Tn = 0.394  # Threshold voltage (V)
+V_A = 29.3  # Early voltage (V)
+mu_Cox = 224.1e-6  # Product of mobility and oxide capacitance (A/V^2)
+
+# Calculation of transconductance g_m
+V_GS = V_Tn + V_eff  # Gate-source voltage
+g_m = mu_Cox * (W / L) * (V_GS - V_Tn)
+print("Transconductance g_m:", g_m, "S")
+
+# Calculation of output conductance g_d and output resistance r_d
+g_d = (mu_Cox / 2) * (W / L) * (V_GS - V_Tn)**2 / V_A
+r_d = 1 / g_d
+print("Output conductance g_d:", g_d, "S")
+print("Output resistance r_d:", r_d, "Ω")
+
+# Calculation of drain current I_DS
+I_DS = (mu_Cox / 2) * (W / L) * (V_GS - V_Tn)**2 * (1 + V_DS / V_A)
+print("Drain current I_DS:", I_DS, "A")
+
+# Calculation of load resistance R_L
+R_L = V_DS / I_DS
+print("Load resistance R_L:", R_L, "Ω")
+```
