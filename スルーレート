@@ -1,0 +1,41 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy import signal
+
+# サンプリング時間とシステムパラメータの設定
+T = 1e-4  # サンプリング時間 (秒)
+t = np.arange(0, 0.01, T)  # 時間軸の生成 (0から0.01秒まで)
+
+# 単純なアンプ回路の伝達関数 (例: 1次遅れ系)
+gain = 1  # 増幅率
+cutoff_freq = 100  # カットオフ周波数 (Hz)
+omega_c = 2 * np.pi * cutoff_freq  # 角周波数
+
+# ローパスフィルタの伝達関数 H(s) = gain * omega_c / (s + omega_c)
+num = [gain * omega_c]
+den = [1, omega_c]
+system = signal.TransferFunction(num, den)
+
+# ステップ応答の取得（LTIシステムとして処理）
+t_out, y_out, _ = signal.lsim(system, U=np.ones_like(t), T=t)
+
+# スルーレートの計算（最大の勾配）
+slew_rate = np.max(np.diff(y_out) / T)
+
+# 結果の表示
+print(f"Slew Rate: {slew_rate:.4f} V/s")
+
+# プロット
+plt.figure(figsize=(8, 4))
+plt.plot(t_out, y_out, label="Step Response")
+plt.xlabel("Time [s]")
+plt.ylabel("Amplitude [V]")
+plt.title("Step Response and Slew Rate")
+plt.grid()
+plt.legend()
+
+# スルーレートを示す点の追加
+max_slope_idx = np.argmax(np.diff(y_out))
+plt.plot(t_out[max_slope_idx], y_out[max_slope_idx], 'ro', label="Max Slope Point")
+plt.legend()
+plt.show()
