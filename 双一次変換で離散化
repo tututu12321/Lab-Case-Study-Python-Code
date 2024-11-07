@@ -14,7 +14,6 @@ omega_c = 2 * np.pi * cutoff_freq  # 角周波数
 num_lp = [omega_c]
 den_lp = [1, omega_c]
 
-# 連続時間ハイパスフィルタの伝達関数 (例: カットオフ周波数1Hz)
 # ハイパスフィルタの伝達関数 H(s) = s / (s + omega_c)
 num_hp = [1, 0]
 den_hp = [1, omega_c]
@@ -68,4 +67,6 @@ plt.legend()
 
 plt.tight_layout()
 plt.show()
+
+
 ```
