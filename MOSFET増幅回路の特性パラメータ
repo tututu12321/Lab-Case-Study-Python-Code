@@ -1,0 +1,60 @@
+```python
+# 必要なモジュールをインポート
+import sympy as sp
+
+# パラメータの値を設定 (単位に注意)
+R_L_value = 10e3  # 10 kΩ
+r_D_value = 5e3   # 5 kΩ
+g_m_value = 1e-3  # 1 mS
+g_mb_value = 0.2e-3  # 0.2 mS
+
+# 変数を定義
+R_L, r_D, g_m, g_mb = sp.symbols('R_L r_D g_m g_mb')
+
+# 入力インピーダンス (Z_in) の計算 (DC時)
+Z_in_source_grounded = sp.oo  # ソース接地
+Z_in_drain_grounded = sp.oo  # ドレイン接地
+Z_in_gate_grounded = R_L / r_D + 1  # ゲート接地
+
+# 出力インピーダンス (Z_out) の計算
+Z_out_source_grounded = R_L * r_D / (R_L + r_D)  # ソース接地
+Z_out_drain_grounded = 1 / (g_m + g_mb)  # ドレイン接地
+Z_out_gate_grounded = r_D * R_L / (r_D + R_L)  # ゲート接地
+
+# 電圧利得 (A_v) の計算
+A_v_source_grounded = - (R_L * r_D / (R_L + r_D)) * g_m  # ソース接地
+A_v_drain_grounded = (g_m + g_mb + 1 / r_D) * R_L + 1  # ドレイン接地
+A_v_gate_grounded = 1 / R_L  # ゲート接地
+
+# パラメータを代入して計算
+Z_in_results = {
+    "Source Grounded": Z_in_source_grounded,
+    "Drain Grounded": Z_in_drain_grounded,
+    "Gate Grounded": Z_in_gate_grounded.subs({R_L: R_L_value, r_D: r_D_value}),
+}
+
+Z_out_results = {
+    "Source Grounded": Z_out_source_grounded.subs({R_L: R_L_value, r_D: r_D_value}),
+    "Drain Grounded": Z_out_drain_grounded.subs({g_m: g_m_value, g_mb: g_mb_value}),
+    "Gate Grounded": Z_out_gate_grounded.subs({R_L: R_L_value, r_D: r_D_value}),
+}
+
+A_v_results = {
+    "Source Grounded": A_v_source_grounded.subs({R_L: R_L_value, r_D: r_D_value, g_m: g_m_value}),
+    "Drain Grounded": A_v_drain_grounded.subs({R_L: R_L_value, r_D: r_D_value, g_m: g_m_value, g_mb: g_mb_value}),
+    "Gate Grounded": A_v_gate_grounded.subs({R_L: R_L_value}),
+}
+
+# 結果を表示
+print("入力インピーダンス (Z_in):")
+for key, value in Z_in_results.items():
+    print(f"{key}: {value}")
+
+print("\n出力インピーダンス (Z_out):")
+for key, value in Z_out_results.items():
+    print(f"{key}: {value}")
+
+print("\n電圧利得 (A_v):")
+for key, value in A_v_results.items():
+    print(f"{key}: {value}")
+```
