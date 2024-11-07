@@ -1,54 +1,79 @@
+```python
 import numpy as np
 import matplotlib.pyplot as plt
 
-# Constants and parameter settings
-VDD = 3.3  # Power supply voltage (V)
-Rd = 1e3   # Drain resistor (1kΩ)
-Id = 1e-3  # Drain current (1 mA)
-Vgs = 1.2  # Gate-Source voltage (V)
-Vth = 0.7  # NMOS threshold voltage (V)
-gm = 10 / Rd  # Transconductance (S) - set to achieve a gain of 10
-frequency = 1e3  # Frequency of input signal (1 kHz)
-V_in_amp = 25e-3  # Amplitude of input signal (peak amplitude is 25 mV for 50 mVpp)
-time = np.linspace(0, 5 / frequency, 1000)  # Simulation time range
+# Constants
+VDD = 3.3  # Supply voltage (V)
+R_D = 1e3  # Drain resistance (1kΩ)
+I_D_bias = 1e-3  # Bias current (1mA)
+V_ampl = 0.025  # Amplitude (50mVpp => 25mV)
+frequency = 1e3  # Input signal frequency (1kHz)
+time = np.linspace(0, 5e-3, 1000)  # Time from 0 to 5ms
 
-# Generate the input signal (sine wave)
-V_in = V_in_amp * np.sin(2 * np.pi * frequency * time)
+# Set bias value
+VGS_bias = 1.5  # Fixed bias voltage (V)
 
-# Generate the output signal (small-signal analysis)
-V_out = VDD - Rd * (Id + gm * V_in)
+# Calculate input signal VGS
+VGS = V_ampl * np.sin(2 * np.pi * frequency * time) + VGS_bias  # Sine wave with bias
 
-# Calculate the peak-to-peak voltages of input and output
-V_in_pp = 2 * V_in_amp  # 50 mV peak-to-peak
-V_out_pp = V_out.max() - V_out.min()  # Measure peak-to-peak of output
+# Fixed drain-source voltage
+VDS_fixed = 1.0  # Fixed drain-source voltage (V)
 
-# Calculate gain
-gain_linear = V_out_pp / V_in_pp
-gain_db = 20 * np.log10(gain_linear)
+# Calculate drain current I_D (considering channel length modulation)
+Vth = 0.7  # Threshold voltage (V)
+mu_n = 200e-4  # Carrier mobility (m^2/Vs)
+Cox = 1e-6  # Oxide capacitance (F/m^2)
+W = 10e-6  # Width (m)
+L = 0.5e-6  # Length (m)
+lambda_channel = 0.1  # Channel length modulation coefficient
 
-# Print the results
-print(f"Linear Gain: {gain_linear:.2f}")
-print(f"Gain in dB: {gain_db:.2f} dB")
+# Drain current calculation
+I_D = mu_n * Cox * (W / L) * ((VGS - Vth) * VDS_fixed - 0.5 * VDS_fixed**2) * (1 + lambda_channel * VDS_fixed)
+I_D[VGS < Vth] = 0  # I_D is 0 if VGS < Vth
 
-# Plotting
-plt.figure(figsize=(12, 6))
+# Calculate output voltage Vout
+Vout = VDD - R_D * I_D  # Calculate output voltage
 
-# Input signal plot
-plt.subplot(2, 1, 1)
-plt.plot(time * 1e3, V_in * 1e3, 'g')
-plt.title("NMOS Common Source Amplifier")
-plt.ylabel("Input Voltage (mV)")
-plt.xlabel("Time (ms)")
+# Create plots
+plt.figure(figsize=(12, 12))
+
+# VGS plot
+plt.subplot(4, 1, 1)
+plt.plot(time, VGS, label='VGS (Gate-Source Voltage)', color='blue')
+plt.title('Gate-Source Voltage VGS')
+plt.xlabel('Time (s)')
+plt.ylabel('Voltage (V)')
 plt.grid()
-plt.legend(["Input Signal (50 mVpp)"])
+plt.legend()
 
-# Output signal plot
-plt.subplot(2, 1, 2)
-plt.plot(time * 1e3, V_out, 'r')
-plt.ylabel("Output Voltage (V)")
-plt.xlabel("Time (ms)")
+# Vout plot
+plt.subplot(4, 1, 2)
+plt.plot(time, Vout, label='Vout (Output Voltage)', color='green')
+plt.title('Output Voltage Vout')
+plt.xlabel('Time (s)')
+plt.ylabel('Voltage (V)')
 plt.grid()
-plt.legend(["Output Signal (~500 mVpp)"])
+plt.legend()
+
+# Display fixed VDS value
+plt.subplot(4, 1, 3)
+plt.axis('off')  # Turn off axes
+plt.text(0.5, 0.5, f'Fixed Drain-Source Voltage VDS: {VDS_fixed} V', 
+         fontsize=14, ha='center', va='center')
+
+# I_D plot
+plt.subplot(4, 1, 4)
+plt.plot(time, I_D, label='I_D (Drain Current)', color='orange')
+plt.title('Drain Current I_D')
+plt.xlabel('Time (s)')
+plt.ylabel('Current (A)')
+plt.grid()
+plt.legend()
+
+# Add text for drain current calculation at a suitable position
+plt.figtext(0.5, 0.01, 'I_D Calculation: I_D = mu_n * Cox * (W/L) * ((VGS - Vth) * VDS_fixed - 0.5 * VDS_fixed^2) * (1 + lambda_channel * VDS_fixed)', 
+            fontsize=10, ha='center')
 
 plt.tight_layout()
 plt.show()
+```
