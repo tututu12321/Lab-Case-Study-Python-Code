@@ -1,0 +1,71 @@
+```python
+from scipy import signal
+import numpy as np
+import matplotlib.pyplot as plt
+
+# サンプリング周期の設定
+T = 0.01  # サンプリング時間 (秒)
+
+# 連続時間ローパスフィルタの伝達関数 (例: カットオフ周波数1Hz)
+cutoff_freq = 1  # カットオフ周波数 (Hz)
+omega_c = 2 * np.pi * cutoff_freq  # 角周波数
+
+# ローパスフィルタの伝達関数 H(s) = omega_c / (s + omega_c)
+num_lp = [omega_c]
+den_lp = [1, omega_c]
+
+# 連続時間ハイパスフィルタの伝達関数 (例: カットオフ周波数1Hz)
+# ハイパスフィルタの伝達関数 H(s) = s / (s + omega_c)
+num_hp = [1, 0]
+den_hp = [1, omega_c]
+
+# 連続時間フィルタを双一次変換で離散化
+lp_filter = signal.TransferFunction(num_lp, den_lp).to_discrete(T, method='bilinear')
+hp_filter = signal.TransferFunction(num_hp, den_hp).to_discrete(T, method='bilinear')
+
+# 周波数応答の取得
+w_lp, h_lp = signal.freqz(lp_filter.num, lp_filter.den, fs=1/T)
+w_hp, h_hp = signal.freqz(hp_filter.num, hp_filter.den, fs=1/T)
+
+# ボード線図のプロット
+plt.figure(figsize=(10, 8))
+
+# ローパスフィルタの利得線図
+plt.subplot(2, 2, 1)
+plt.plot(w_lp, 20 * np.log10(abs(h_lp)), label="Low-pass Filter")
+plt.title("Low-pass Filter - Magnitude")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.grid()
+plt.legend()
+
+# ローパスフィルタの位相線図
+plt.subplot(2, 2, 2)
+plt.plot(w_lp, np.angle(h_lp, deg=True), label="Low-pass Filter")
+plt.title("Low-pass Filter - Phase")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [degrees]")
+plt.grid()
+plt.legend()
+
+# ハイパスフィルタの利得線図
+plt.subplot(2, 2, 3)
+plt.plot(w_hp, 20 * np.log10(abs(h_hp)), label="High-pass Filter")
+plt.title("High-pass Filter - Magnitude")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.grid()
+plt.legend()
+
+# ハイパスフィルタの位相線図
+plt.subplot(2, 2, 4)
+plt.plot(w_hp, np.angle(h_hp, deg=True), label="High-pass Filter")
+plt.title("High-pass Filter - Phase")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [degrees]")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+```
