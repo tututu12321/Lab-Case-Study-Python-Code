@@ -1,0 +1,78 @@
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import TransferFunction, bode
+
+# パラメータ設定
+# 演習課題1
+A0_1 = 40  # 直流ゲイン
+f_p1_1 = 159e3  # 第1の極 (Hz)
+f_p2_1 = 7.96e6  # 第2の極 (Hz)
+
+# 演習課題2
+A0_2 = 16  # 直流ゲイン
+f_p1_2 = 9.95e6  # 極 (Hz)
+
+# 伝達関数の分子と分母の係数を計算
+# 演習課題1の伝達関数
+num_1 = [A0_1]  # 分子（直流ゲイン）
+den_1 = [1, 2 * np.pi * (1/f_p1_1 + 1/f_p2_1), 2 * np.pi * f_p1_1 * f_p2_1]  # 分母（極の配置）
+system_1 = TransferFunction(num_1, den_1)
+
+# 演習課題2の伝達関数
+num_2 = [A0_2]  # 分子（直流ゲイン）
+den_2 = [1, 2 * np.pi / f_p1_2]  # 分母（単一極）
+system_2 = TransferFunction(num_2, den_2)
+
+# ボード線図を作成
+# 演習課題1のボード線図
+frequencies_1, mag_1, phase_1 = bode(system_1)
+
+plt.figure(figsize=(12, 8))
+plt.suptitle("Exercise 1: Bode Plot")
+
+# 振幅プロット
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies_1, mag_1, color="blue")
+plt.title("Magnitude")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.grid(which="both", linestyle="--")
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies_1, phase_1, color="blue")
+plt.title("Phase")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [Degrees]")
+plt.grid(which="both", linestyle="--")
+
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.show()
+
+# 演習課題2のボード線図
+frequencies_2, mag_2, phase_2 = bode(system_2)
+
+plt.figure(figsize=(12, 8))
+plt.suptitle("Exercise 2: Bode Plot")
+
+# 振幅プロット
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies_2, mag_2, color="red")
+plt.title("Magnitude")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.grid(which="both", linestyle="--")
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies_2, phase_2, color="red")
+plt.title("Phase")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [Degrees]")
+plt.grid(which="both", linestyle="--")
+
+plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+plt.show()
+
+```
