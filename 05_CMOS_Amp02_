@@ -1,0 +1,28 @@
+```python
+# 定数の設定
+V_DD = 10.0          # 電源電圧 (V)
+V_GS3 = 2.0          # M3のゲート-ソース間電圧 (V)
+R_B = 2e3            # 抵抗 R_B (Ω)
+lambda_value = 0.01  # チャネル長変調パラメータ (V^-1)
+K = 0.01             # MOSFETの定数 (A/V^2)
+
+# 1. I_REFとI_DQの計算
+I_REF = (V_DD - V_GS3) / R_B
+I_DQ = I_REF  # I_DQ = I_REF とする
+print("I_REF (バイアス電流):", I_REF, "A")
+print("I_DQ (ドレイン電流):", I_DQ, "A")
+
+# 2. ropとronの計算
+r_op = 1 / (lambda_value * I_DQ)
+r_on = 1 / (lambda_value * I_DQ)
+print("rop (ドレイン抵抗):", r_op, "Ω")
+print("ron (ソース抵抗):", r_on, "Ω")
+
+# 3. gmの計算
+g_m = (2 * K * I_DQ) ** 0.5
+print("gm (相互コンダクタンス):", g_m, "S")
+
+# 4. ゲインAvの計算
+A_v = -g_m * r_op
+print("Av (電圧利得):", A_v)
+```
