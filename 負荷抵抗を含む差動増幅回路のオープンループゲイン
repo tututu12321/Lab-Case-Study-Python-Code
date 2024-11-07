@@ -1,0 +1,44 @@
+# パラメータの設定
+Vin_offset = 1.5  # 入力電圧のオフセット (V)
+Vin_amplitude = 0.01  # 入力電圧の振幅 (V)
+frequency = 1e6  # 周波数 (Hz)
+time = np.linspace(0, 2e-6, 1000)  # 時間軸 (0～2マイクロ秒で1000点)
+IB = 1e-3  # バイアス電流 (A)
+RD = 10e3  # 負荷抵抗 (Ω)
+Veff = 0.2  # 有効ゲート電圧 (V)
+
+# 入力電圧 Vin の計算 (正弦波)
+Vin = Vin_offset + Vin_amplitude * np.sin(2 * np.pi * frequency * time)
+
+# 出力電圧 Vout の計算
+Vout = - (IB * RD / Veff) * Vin
+
+# 利得の計算 (倍と dB)
+gain = abs(IB * RD / Veff)  # 倍率としての利得
+gain_dB = 20 * np.log10(gain)  # dBでの利得
+
+# 結果の表示
+print("Gain (倍):", gain)
+print("Gain (dB):", gain_dB)
+
+# グラフのプロット
+plt.figure(figsize=(10, 5))
+
+# 入力電圧 Vin のプロット
+plt.subplot(2, 1, 1)
+plt.plot(time * 1e6, Vin)  # マイクロ秒単位で表示
+plt.title("Input Voltage Vin")
+plt.xlabel("Time (μs)")
+plt.ylabel("Vin (V)")
+plt.grid(True)
+
+# 出力電圧 Vout のプロット
+plt.subplot(2, 1, 2)
+plt.plot(time * 1e6, Vout, color='red')
+plt.title("Output Voltage Vout")
+plt.xlabel("Time (μs)")
+plt.ylabel("Vout (V)")
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
