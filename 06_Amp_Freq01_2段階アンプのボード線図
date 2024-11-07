@@ -1,0 +1,59 @@
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import bode, TransferFunction
+
+# 直流ゲイン
+A0 = 400
+
+# 極周波数の設定（補償前と補償後）
+f_p1_before = 16e6  # 16 MHz
+f_p1_after = 160e3  # 160 kHz
+f_p2_before = 53e6  # 53 MHz
+f_p2_after = 530e6  # 530 MHz
+
+# 伝達関数の設定（補償前）
+num_before = [A0]  # 分子 (直流ゲイン)
+den_before = [1, 2 * np.pi * (1/f_p1_before + 1/f_p2_before), 2 * np.pi * f_p1_before * f_p2_before]  # 分母 (補償前の極)
+system_before = TransferFunction(num_before, den_before)
+
+# 伝達関数の設定（補償後）
+num_after = [A0]  # 分子 (直流ゲイン)
+den_after = [1, 2 * np.pi * (1/f_p1_after + 1/f_p2_after), 2 * np.pi * f_p1_after * f_p2_after]  # 分母 (補償後の極)
+system_after = TransferFunction(num_after, den_after)
+
+# Bodeプロットの作成
+plt.figure(figsize=(12, 8))
+
+# 補償前のボード線図
+frequencies, mag_before, phase_before = bode(system_before)
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, mag_before, label="Before Compensation", color="blue")
+plt.title("Bode Plot (Magnitude)")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.legend()
+plt.grid()
+
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase_before, label="Before Compensation", color="blue")
+plt.title("Bode Plot (Phase)")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [Degrees]")
+plt.legend()
+plt.grid()
+
+# 補償後のボード線図
+frequencies, mag_after, phase_after = bode(system_after)
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, mag_after, label="After Compensation", color="red")
+plt.legend()
+
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase_after, label="After Compensation", color="red")
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+```
