@@ -1,0 +1,55 @@
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Parameters
+R1 = 1e3  # Resistance R1 (Ω)
+R2 = 10e3  # Resistance R2 (Ω)
+Vin_amplitude = 1.0  # Input sine wave amplitude (V)
+frequency = 1000  # Input sine wave frequency (Hz)
+time = np.linspace(0, 0.01, 1000)  # Time from 0 to 0.01 seconds
+
+# Generate input sine wave
+Vin = Vin_amplitude * np.sin(2 * np.pi * frequency * time)
+
+# Calculate gain and output voltage for non-inverting amplifier
+gain_non_inverting = (R1 + R2) / R1
+Vout_non_inverting = gain_non_inverting * Vin
+
+# Calculate gain and output voltage for inverting amplifier
+gain_inverting = -R2 / R1
+Vout_inverting = gain_inverting * Vin
+
+# Create plots
+plt.figure(figsize=(12, 8))
+
+# Plot input sine wave
+plt.subplot(3, 1, 1)
+plt.plot(time, Vin, label="Input Sine Wave (Vin)", color="blue")
+plt.title("Input Sine Wave (Vin)")
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.grid()
+plt.legend()
+
+# Plot output voltage for non-inverting amplifier
+plt.subplot(3, 1, 2)
+plt.plot(time, Vout_non_inverting, label="Non-Inverting Amplifier Output (Vout)", color="green")
+plt.title("Non-Inverting Amplifier Output Voltage (Vout)")
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.grid()
+plt.legend()
+
+# Plot output voltage for inverting amplifier
+plt.subplot(3, 1, 3)
+plt.plot(time, Vout_inverting, label="Inverting Amplifier Output (Vout)", color="red")
+plt.title("Inverting Amplifier Output Voltage (Vout)")
+plt.xlabel("Time (s)")
+plt.ylabel("Voltage (V)")
+plt.grid()
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+```
