@@ -1,0 +1,47 @@
+```python
+# このコードはMOSFETの特性に基づく周波数特性とゲインを計算します
+# 参考動画: https://www.youtube.com/watch?v=DjdfvulR25E&ab_channel=Microelectronics
+
+import numpy as np
+
+# MOSFETおよび回路パラメータの設定
+g_m1 = 1e-3  # トランスコンダクタンス g_m1 (S)
+g_m7 = 2e-3  # トランスコンダクタンス g_m7 (S)
+C1 = 1e-12   # 容量 C1 (F)
+C2 = 1e-12   # 容量 C2 (F)
+R1 = 10e3    # 抵抗 R1 (Ω)
+R2 = 20e3    # 抵抗 R2 (Ω)
+C_C = 1e-12  # 補償容量 C_C (F)
+R_C = 5e3    # 抵抗 R_C (Ω)
+r_ds2 = 50e3 # 出力抵抗 r_ds2 (Ω)
+r_ds4 = 60e3 # 出力抵抗 r_ds4 (Ω)
+r_ds6 = 70e3 # 出力抵抗 r_ds6 (Ω)
+r_ds7 = 80e3 # 出力抵抗 r_ds7 (Ω)
+
+# Equivalent 2nd pole
+omega_eq = g_m7 / (C1 + C2)
+print("Equivalent 2nd pole (ω_eq):", omega_eq, "rad/s")
+
+# Dominant pole
+omega_p1 = 1 / (g_m7 * R1 * R2 * C_C)
+print("Dominant pole (ω_p1):", omega_p1, "rad/s")
+
+# Lead compensation zero
+omega_z = -1 / (C_C * (1 / g_m7 - R_C))
+print("Lead compensation zero (ω_z):", omega_z, "rad/s")
+
+# Approximate unity-gain frequency (assuming large phase margin)
+omega_ta = g_m1 / C_C
+print("Approximate unity-gain frequency (ω_ta):", omega_ta, "rad/s")
+
+# Gain expressions
+# 並列抵抗の計算 (r_ds2 || r_ds4 と r_ds6 || r_ds7)
+r_ds2_parallel_r_ds4 = 1 / (1 / r_ds2 + 1 / r_ds4)
+r_ds6_parallel_r_ds7 = 1 / (1 / r_ds6 + 1 / r_ds7)
+
+# ゲイン A_V1 と A_V2 の計算
+A_V1 = -g_m1 * r_ds2_parallel_r_ds4
+A_V2 = -g_m7 * r_ds6_parallel_r_ds7
+print("Gain A_V1:", A_V1)
+print("Gain A_V2:", A_V2)
+```
