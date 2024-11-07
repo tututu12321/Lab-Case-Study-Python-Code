@@ -33,3 +33,27 @@
 3. GitHub上で**New Pull Request**ボタンを押し、変更内容の説明を添えてPRを提出します。
 4. 他のメンバーがレビューし、問題がなければマージされます。
 
+
+
+
+以下は、アナログ回路の復習回用のREADMEのサンプルです。各資料がどのトピックに対応しているかを簡単に説明し、参加者が参考にしやすいように構成しています。
+
+---
+
+# アナログ回路復習回 - 春の勉強会
+
+各PDFファイルには、回路設計や周波数応答、アンプの特性など、アナログ回路に関する重要なトピックが含まれています。
+
+アナログ回路復習回　春の勉強会を追加
+_00_三角関数の基本公式.pdf
+_01_Circuit_Basic.pdf
+_02_Amp_Basic.pdf
+_03_CMOS_Amp01.pdf
+_04_MOSFET.pdf
+_05_CMOS_Amp02.pdf
+_06_Amp_Freq01.pdf
+_07_Amp_Freq02.pdf
+_08_Amp_Freq03.pdf
+_09_Diff.pdf
+_10_Amp_ERR_SR.pdf
+_11_Analog_Filter.pdf
