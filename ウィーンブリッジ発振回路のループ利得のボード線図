@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# パラメータの設定
+A = 10  # 増幅率の例
+R1 = 1e3  # Ω
+R2 = 1e3  # Ω
+Ra = 1e3  # Ω
+Rb = 1e3  # Ω
+C1 = 1e-6  # F
+C2 = 1e-6  # F
+
+# 周波数範囲の設定
+frequencies = np.logspace(1, 6, 500)  # 10 Hzから1 MHzまで
+omega = 2 * np.pi * frequencies  # 角周波数
+
+# ループ利得 Aβ の計算
+# 分子と分母を分けて計算
+numerator = (A * R2 / (1 + 1j * omega * R2 * C2)) - (A * Ra / (Ra + Rb))
+denominator = (1 / (R1 + 1j * omega * C1)) + (R2 / (1 + 1j * omega * R2 * C2))
+AB = 1 + numerator / denominator
+
+# 振幅（dB）と位相（度）の計算
+amplitude_dB = 20 * np.log10(np.abs(AB))
+phase_deg = np.angle(AB, deg=True)
+
+# ボード線図の描画
+plt.figure(figsize=(10, 8))
+
+# 振幅特性
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, amplitude_dB)
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Amplitude [dB]")
+plt.title("Bode Plot of Wien Bridge Oscillator Loop Gain")
+plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+# 位相特性
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase_deg)
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [degrees]")
+plt.grid(True, which="both", linestyle="--", linewidth=0.5)
+
+plt.tight_layout()
+plt.show()
