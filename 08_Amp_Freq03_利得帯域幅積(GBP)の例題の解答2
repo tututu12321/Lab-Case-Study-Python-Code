@@ -1,0 +1,27 @@
+```python
+# 定数の設定
+GBP = 20e6  # 利得帯域積 (GBP) = 20 MHz
+
+# (a) OPアンプの利得・帯域積の計算
+A0_dB = 80  # 直流ゲイン (dB)
+A0 = 10 ** (A0_dB / 20)  # 直流ゲインの倍数表現
+fc = GBP / A0  # カットオフ周波数
+print("(a) 直流ゲイン:", A0, "倍")
+print("(a) カットオフ周波数 f_c:", fc / 1e3, "kHz")
+
+# (b) 非反転増幅回路の利得と帯域幅の計算
+gain_4x = 4  # 4倍の非反転増幅
+gain_40x = 40  # 40倍の非反転増幅
+f_B_4_non_inverting = GBP / gain_4x
+f_B_40_non_inverting = GBP / gain_40x
+print("(b) 非反転増幅回路の4倍利得時の帯域幅:", f_B_4_non_inverting / 1e6, "MHz")
+print("(b) 非反転増幅回路の40倍利得時の帯域幅:", f_B_40_non_inverting / 1e3, "kHz")
+
+# (c) 反転増幅回路の利得と帯域幅の計算
+alpha_4 = 4 / (4 + 1)  # 反転増幅回路の4倍利得時の補正係数
+alpha_40 = 40 / (40 + 1)  # 反転増幅回路の40倍利得時の補正係数
+f_B_4_inverting = GBP * alpha_4 / 4
+f_B_40_inverting = GBP * alpha_40 / 40
+print("(c) 反転増幅回路の4倍利得時の帯域幅:", f_B_4_inverting / 1e6, "MHz")
+print("(c) 反転増幅回路の40倍利得時の帯域幅:", f_B_40_inverting / 1e3, "kHz")
+```
