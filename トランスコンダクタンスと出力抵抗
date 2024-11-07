@@ -1,0 +1,19 @@
+import numpy as np
+
+# MOSFETのパラメータ設定
+mu = 200e-4  # キャリアの移動度 (cm²/V·s) を (m²/V·s) に換算
+Cox = 2.5e-3  # 酸化膜容量 (F/m²)
+W = 10e-6  # チャネル幅 (m)
+L = 1e-6  # チャネル長 (m)
+Vth = 0.7  # しきい値電圧 (V)
+ID = 1e-3  # ドレイン電流 (A)
+lambda_param = 0.02  # チャネル長変調係数
+
+# トランスコンダクタンス gm の計算
+VGS = Vth + 0.2  # ゲート-ソース電圧 (V) 例としてVthより少し大きい値を仮定
+gm = np.sqrt(2 * mu * Cox * (W / L) * ID)
+print("トランスコンダクタンス g_m:", gm, "S")
+
+# 出力抵抗 ro の計算
+ro = 1 / (lambda_param * ID)
+print("出力抵抗 r_o:", ro, "Ω")
