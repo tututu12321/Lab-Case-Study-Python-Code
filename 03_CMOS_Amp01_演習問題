@@ -1,0 +1,19 @@
+```python
+# 定数の設定
+V_T = 0.5           # しきい値電圧 (V)
+K = 0.01            # MOSFETパラメータ (A/V^2)
+V_GQ = 1.0          # ゲート直流バイアス電圧 (V)
+R = 2e3             # ドレイン抵抗 (Ω)
+
+# 1. バイアス電流 I_DQ の計算
+I_DQ = K * (V_GQ - V_T)**2
+print("バイアス電流 I_DQ:", I_DQ, "A")
+
+# 2. 相互コンダクタンス g_m の計算
+g_m = 2 * K * (V_GQ - V_T)
+print("相互コンダクタンス g_m:", g_m, "S")
+
+# 3. 電圧利得 v2/v1 の計算
+voltage_gain = -g_m * R
+print("電圧利得 v2/v1:", voltage_gain)
+```
