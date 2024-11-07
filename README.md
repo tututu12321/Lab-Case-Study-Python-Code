@@ -40,20 +40,36 @@
 
 ---
 
-# アナログ回路復習回 - 春の勉強会
 
-各PDFファイルには、回路設計や周波数応答、アンプの特性など、アナログ回路に関する重要なトピックが含まれています。
 
-アナログ回路復習回　春の勉強会を追加
-_00_三角関数の基本公式.pdf
-_01_Circuit_Basic.pdf
-_02_Amp_Basic.pdf
-_03_CMOS_Amp01.pdf
-_04_MOSFET.pdf
-_05_CMOS_Amp02.pdf
-_06_Amp_Freq01.pdf
-_07_Amp_Freq02.pdf
-_08_Amp_Freq03.pdf
-_09_Diff.pdf
-_10_Amp_ERR_SR.pdf
-_11_Analog_Filter.pdf
+---
+
+# 追加　アナログ回路復習回 - 春の勉強会
+
+
+## コンテンツ
+
+1. **_00_三角関数の基本公式.pdf**  
+   
+
+2. **_01_Circuit_Basic.pdf**  
+   
+3. **_02_Amp_Basic.pdf**  
+  
+4. **_03_CMOS_Amp01.pdf**  
+   
+
+5. **_04_MOSFET.pdf**  
+   -
+6. **_05_CMOS_Amp02.pdf**  
+   
+
+7. **_06_Amp_Freq01.pdf**  
+   
+
+8. **_07_Amp_Freq02.pdf**  
+ 
+
+---
+
+Pythonコードでの補足をつけておきました。
