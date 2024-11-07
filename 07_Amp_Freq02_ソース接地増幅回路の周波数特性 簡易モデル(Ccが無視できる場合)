@@ -1,0 +1,52 @@
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.signal import TransferFunction, bode
+
+# パラメータの設定
+Ci = 1e-12    # 入力キャパシタンス (F)
+Rs = 1e3      # ソース抵抗 (Ω)
+gm = 1e-3     # トランスコンダクタンス (S)
+Rd = 1e3      # ドレイン抵抗 (Ω)
+C0 = 1e-12    # 出力キャパシタンス (F)
+
+# 直流ゲインの計算
+gain_dc = -gm * Rd
+
+# 第1の極と第2の極の周波数を計算
+f_p1 = 1 / (2 * np.pi * Ci * Rs)    # 第1の極
+f_p2 = 1 / (2 * np.pi * C0 * Rd)    # 第2の極
+
+# 極の周波数から伝達関数の分母の係数を設定
+# 伝達関数: G(s) = gain_dc / ((1 + s/(2*pi*f_p1)) * (1 + s/(2*pi*f_p2)))
+num = [gain_dc]  # 分子 (直流ゲイン)
+den = [1, 2 * np.pi * (1/f_p1 + 1/f_p2), 2 * np.pi * f_p1 * f_p2]  # 分母の係数 (二次方程式)
+
+# 伝達関数の作成
+system = TransferFunction(num, den)
+
+# 周波数応答の取得 (Bodeプロット)
+frequencies, mag, phase = bode(system)
+
+# Bodeプロットの描画
+plt.figure(figsize=(12, 8))
+
+# 振幅プロット
+plt.subplot(2, 1, 1)
+plt.semilogx(frequencies, mag, color="blue")
+plt.title("Bode Plot (Magnitude)")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Magnitude [dB]")
+plt.grid(True, which="both", ls="--")
+
+# 位相プロット
+plt.subplot(2, 1, 2)
+plt.semilogx(frequencies, phase, color="green")
+plt.title("Bode Plot (Phase)")
+plt.xlabel("Frequency [Hz]")
+plt.ylabel("Phase [Degrees]")
+plt.grid(True, which="both", ls="--")
+
+plt.tight_layout()
+plt.show()
+```
