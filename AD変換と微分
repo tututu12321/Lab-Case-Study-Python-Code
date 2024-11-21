@@ -1,0 +1,90 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ステップ 1: サイン波の生成
+def generate_sine_wave(frequency=1, amplitude=1, sampling_rate=100, duration=2):
+    """
+    サイン波を生成
+    frequency: 周波数 [Hz]
+    amplitude: 振幅
+    sampling_rate: サンプリングレート [Hz]
+    duration: 時間 [秒]
+    """
+    t = np.linspace(0, duration, int(sampling_rate * duration), endpoint=False)
+    sine_wave = amplitude * np.sin(2 * np.pi * frequency * t)
+    return t, sine_wave
+
+# ステップ 2: 量子化
+def quantize_signal(signal, levels=16):
+    """
+    信号を量子化
+    signal: 入力信号
+    levels: 量子化レベル
+    """
+    min_val, max_val = np.min(signal), np.max(signal)
+    step = (max_val - min_val) / levels
+    quantized_signal = np.round((signal - min_val) / step) * step + min_val
+    return quantized_signal
+
+# ステップ 3: 数値的微分
+def numerical_derivative(signal, sampling_rate):
+    """
+    信号の数値的微分を計算
+    signal: 入力信号
+    sampling_rate: サンプリングレート [Hz]
+    """
+    dt = 1 / sampling_rate
+    derivative = np.diff(signal) / dt
+    return derivative
+
+# ステップ 4: プロット
+def plot_signals_and_derivatives(t, original, quantized, sampling_rate):
+    """
+    オリジナル信号、量子化信号、両者の数値微分をプロット
+    """
+    # 微分
+    original_derivative = numerical_derivative(original, sampling_rate)
+    quantized_derivative = numerical_derivative(quantized, sampling_rate)
+
+    # 時間軸（微分後は1つデータポイントが減る）
+    t_derivative = t[:-1]
+
+    # プロット
+    plt.figure(figsize=(12, 8))
+
+    # オリジナルと量子化信号
+    plt.subplot(2, 1, 1)
+    plt.plot(t, original, label="Original Signal", color="blue")
+    plt.plot(t, quantized, label="Quantized Signal", color="orange", linestyle="--")
+    plt.title("Original and Quantized Signals")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+    plt.legend()
+    plt.grid()
+
+    # 数値微分
+    plt.subplot(2, 1, 2)
+    plt.plot(t_derivative, original_derivative, label="Original Derivative", color="green")
+    plt.plot(t_derivative, quantized_derivative, label="Quantized Derivative", color="red", linestyle="--")
+    plt.title("Numerical Derivatives")
+    plt.xlabel("Time [s]")
+    plt.ylabel("Amplitude")
+    plt.legend()
+    plt.grid()
+
+    plt.tight_layout()
+    plt.show()
+
+# パラメータ設定
+frequency = 2          # サイン波の周波数 [Hz]
+amplitude = 1          # サイン波の振幅
+sampling_rate = 100    # サンプリングレート [Hz]
+duration = 2           # 信号の時間 [秒]
+quantization_levels = 16  # 量子化レベル
+
+# 信号の生成と処理
+t, original_signal = generate_sine_wave(frequency, amplitude, sampling_rate, duration)
+quantized_signal = quantize_signal(original_signal, levels=quantization_levels)
+
+# プロット実行
+plot_signals_and_derivatives(t, original_signal, quantized_signal, sampling_rate)
