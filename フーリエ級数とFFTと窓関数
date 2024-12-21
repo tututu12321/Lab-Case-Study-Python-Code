@@ -1,0 +1,145 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 定義
+T = 2 * np.pi  # 矩形波の周期
+omega = 2 * np.pi / T  # 基本周波数
+
+# 時間軸の設定
+t = np.linspace(0, T, 1000)
+
+# フーリエ級数を用いて矩形波を近似（奇数倍のサイン波の和）
+def fourier_square_wave(t, n_terms=10):
+    sum_wave = np.zeros_like(t)
+    for n in range(1, n_terms + 1, 2):  # 奇数項のみ
+        sum_wave += (4 / (n * np.pi)) * np.sin(n * omega * t)
+    return sum_wave
+
+# フーリエ級数の項数を変更して波形をプロット
+n_terms_list = [1, 3, 5, 10]  # フーリエ級数の項数をリストに設定
+
+plt.figure(figsize=(10, 6))
+
+# 各項数に対応する矩形波の近似をプロット
+for n_terms in n_terms_list:
+    wave = fourier_square_wave(t, n_terms)
+    plt.plot(t, wave, label=f'{n_terms} terms')
+
+# 正弦波を使った理論矩形波（正解の矩形波）
+plt.plot(t, np.sign(np.sin(omega * t)), color='black', linestyle='--', label='Ideal Square Wave')
+
+# グラフのラベル設定
+plt.title('Fourier Series Approximation of a Square Wave')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# FFTを使って信号の周波数成分を確認
+N = len(t)  # サンプル数
+fs = N / T  # サンプリング周波数（1秒あたりのサンプル数）
+
+# 元の矩形波のFFTを計算
+f = np.fft.fftfreq(N, d=(t[1] - t[0]))  # 周波数軸
+fft_values = np.fft.fft(np.sign(np.sin(omega * t)))  # FFTを適用
+
+# ローパスフィルタ（カットオフ周波数を設定）
+cutoff_low = 5  # ローパスフィルタのカットオフ周波数（Hz）
+fft_values_low = fft_values.copy()
+fft_values_low[np.abs(f) > cutoff_low] = 0  # 高周波数成分を0にする
+
+# ハイパスフィルタ（カットオフ周波数を設定）
+cutoff_high = 10  # ハイパスフィルタのカットオフ周波数（Hz）
+fft_values_high = fft_values.copy()
+fft_values_high[np.abs(f) < cutoff_high] = 0  # 低周波数成分を0にする
+
+# バンドパスフィルタ（カットオフ周波数範囲を設定）
+cutoff_bandpass_low = 2  # バンドパスフィルタの低カットオフ周波数（Hz）
+cutoff_bandpass_high = 8  # バンドパスフィルタの高カットオフ周波数（Hz）
+fft_values_bandpass = fft_values.copy()
+fft_values_bandpass[(np.abs(f) < cutoff_bandpass_low) | (np.abs(f) > cutoff_bandpass_high)] = 0  # 指定した帯域外の周波数成分を0にする
+
+# 窓関数の適用（ハン窓）
+window = np.hanning(N)  # ハン窓を生成
+fft_values_windowed = fft_values * window  # 窓関数を適用
+
+# フィルタ後の信号を逆FFTで戻す
+signal_low = np.fft.ifft(fft_values_low)
+signal_high = np.fft.ifft(fft_values_high)
+signal_bandpass = np.fft.ifft(fft_values_bandpass)
+signal_windowed = np.fft.ifft(fft_values_windowed)
+
+# フィルタリングした信号をプロット
+plt.figure(figsize=(10, 12))
+
+# フィルタ後のローパスフィルタ信号を時間領域でプロット
+plt.subplot(4, 2, 1)
+plt.plot(t, signal_low, label='Low-pass Filtered Signal')
+plt.title('Low-pass Filtered Square Wave (Time Domain)')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# フィルタ後のハイパスフィルタ信号を時間領域でプロット
+plt.subplot(4, 2, 2)
+plt.plot(t, signal_high, label='High-pass Filtered Signal', color='orange')
+plt.title('High-pass Filtered Square Wave (Time Domain)')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# フィルタ後のバンドパスフィルタ信号を時間領域でプロット
+plt.subplot(4, 2, 3)
+plt.plot(t, signal_bandpass, label='Band-pass Filtered Signal', color='green')
+plt.title('Band-pass Filtered Square Wave (Time Domain)')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# フィルタ後の窓関数適用信号を時間領域でプロット
+plt.subplot(4, 2, 4)
+plt.plot(t, signal_windowed, label='Windowed Signal', color='red')
+plt.title('Windowed Square Wave (Time Domain)')
+plt.xlabel('Time')
+plt.ylabel('Amplitude')
+plt.legend()
+plt.grid(True)
+
+# 各信号のFFTをプロット（周波数領域）
+plt.subplot(4, 2, 5)
+plt.plot(f[:N//2], np.abs(fft_values_low)[:N//2], label='Low-pass Filtered Signal FFT')
+plt.title('FFT of Low-pass Filtered Square Wave')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+plt.legend()
+plt.grid(True)
+
+plt.subplot(4, 2, 6)
+plt.plot(f[:N//2], np.abs(fft_values_high)[:N//2], label='High-pass Filtered Signal FFT', color='orange')
+plt.title('FFT of High-pass Filtered Square Wave')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+plt.legend()
+plt.grid(True)
+
+plt.subplot(4, 2, 7)
+plt.plot(f[:N//2], np.abs(fft_values_bandpass)[:N//2], label='Band-pass Filtered Signal FFT', color='green')
+plt.title('FFT of Band-pass Filtered Square Wave')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+plt.legend()
+plt.grid(True)
+
+plt.subplot(4, 2, 8)
+plt.plot(f[:N//2], np.abs(fft_values_windowed)[:N//2], label='Windowed Signal FFT', color='red')
+plt.title('FFT of Windowed Square Wave')
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Magnitude')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
