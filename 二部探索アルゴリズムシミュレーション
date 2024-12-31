@@ -1,0 +1,75 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 2部探索アルゴリズムに基づくAD変換器
+def binary_search_adc_with_vdd(Vin, VDD):
+    # 基準電圧 VREF = VDD / 2
+    VREF = VDD / 2
+    
+    # 入力電圧に応じて計算
+    if Vin > VREF:
+        Vout = 2 * (Vin - VREF)  # VinがVREFより大きい場合
+        D = 1  # ビット出力は1
+    else:
+        Vout = 2 * Vin  # VinがVREFより小さい場合
+        D = 0  # ビット出力は0
+    
+    return Vout, D
+
+# シミュレーションの設定
+fs = 1000  # サンプリング周波数 (Hz)
+VDD = 5  # 電源電圧 (V)
+T = 1  # シミュレーション時間 (秒)
+t = np.linspace(0, T, fs)  # 時間軸
+
+# ランプ波の生成 (線形に増加)
+Vin = np.linspace(0, VDD, fs)
+
+# サンプリング間隔（サンプル周期）
+sample_interval = 10  # 例えば、10サンプルごとにサンプリングする
+
+# サンプリングホールドの初期化
+Vin_sampled = np.zeros(fs)
+Vout = np.zeros(fs)
+D = np.zeros(fs)
+
+# サンプリングホールドの実行
+for i in range(1, fs):
+    if i % sample_interval == 0:
+        Vin_sampled[i] = Vin[i]  # サンプリングポイントでVinを保持
+    else:
+        Vin_sampled[i] = Vin_sampled[i - 1]  # 前回のサンプルを保持
+
+    # 2部探索アルゴリズムを適用
+    Vout[i], D[i] = binary_search_adc_with_vdd(Vin_sampled[i], VDD)
+
+# プロット
+fig, axs = plt.subplots(4, 1, figsize=(12, 12), sharex=True)
+
+# ランプ波の入力信号
+axs[0].plot(t, Vin, label="Input Ramp Signal (Vin)", color='b')
+axs[0].set_title("Input Ramp Signal (Vin)")
+axs[0].set_ylabel("Voltage (V)")
+axs[0].legend()
+
+# サンプリングホールド後の入力信号
+axs[1].plot(t, Vin_sampled, label="Sampled and Held Input Signal (Vin_sampled)", color='g')
+axs[1].set_title("Sampled and Held Input Signal (Vin_sampled)")
+axs[1].set_ylabel("Voltage (V)")
+axs[1].legend()
+
+# 残差電圧Voutのプロット
+axs[2].plot(t, Vout, label="Residual Voltage (Vout)", color='r')
+axs[2].set_title("Residual Voltage (Vout)")
+axs[2].set_ylabel("Voltage (V)")
+axs[2].legend()
+
+# ビット出力Dのプロット
+axs[3].step(t, D, label="Bit Output (D)", where='mid', color='m')
+axs[3].set_title("Bit Output (D)")
+axs[3].set_xlabel("Time (s)")
+axs[3].set_ylabel("Bit Value")
+axs[3].legend()
+
+plt.tight_layout()
+plt.show()
