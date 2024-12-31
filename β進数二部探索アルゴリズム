@@ -1,0 +1,78 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 非2進数型探索アルゴリズムを模倣したAD変換器
+def binary_search_adc_with_vdd(Vin, VDD):
+    # 基準電圧 VREF = VDD / 2
+    VREF = VDD / 2
+
+    # 定数の定義（集積回路用に設定）
+    beta = 1.9999  # β 
+
+    # 入力電圧に応じて計算
+    if Vin > VREF:
+        D = 1  # VinがVREFより大きい場合、ビット出力は1
+        Vout = beta * Vin + (1 - beta) * VREF  # D = 1の場合のVoutの計算
+    else:
+        D = 0  # VinがVREF以下の場合、ビット出力は0
+        Vout = beta * Vin - (1 - beta) * VREF  # D = 0の場合のVoutの計算
+    
+    return Vout, D
+
+# シミュレーションの設定
+fs = 1000  # サンプリング周波数 (Hz)
+VDD = 5  # 電源電圧 (V)
+T = 1  # シミュレーション時間 (秒)
+t = np.linspace(0, T, fs)  # 時間軸
+
+# ランプ波の生成 (線形に増加)
+Vin = np.linspace(0, VDD, fs)
+
+# サンプリング間隔（サンプル周期）
+sample_interval = 10  # 例えば、10サンプルごとにサンプリングする
+
+# サンプリングホールドの初期化
+Vin_sampled = np.zeros(fs)
+Vout = np.zeros(fs)
+D = np.zeros(fs)
+
+# サンプリングホールドの実行
+for i in range(1, fs):
+    if i % sample_interval == 0:
+        Vin_sampled[i] = Vin[i]  # サンプリングポイントでVinを保持
+    else:
+        Vin_sampled[i] = Vin_sampled[i - 1]  # 前回のサンプルを保持
+
+    # 非2進数型探索アルゴリズムを適用
+    Vout[i], D[i] = binary_search_adc_with_vdd(Vin_sampled[i], VDD)
+
+# プロット
+fig, axs = plt.subplots(4, 1, figsize=(12, 12), sharex=True)
+
+# ランプ波の入力信号
+axs[0].plot(t, Vin, label="Input Ramp Signal (Vin)", color='b')
+axs[0].set_title("Input Ramp Signal (Vin)")
+axs[0].set_ylabel("Voltage (V)")
+axs[0].legend()
+
+# サンプリングホールド後の入力信号
+axs[1].plot(t, Vin_sampled, label="Sampled and Held Input Signal (Vin_sampled)", color='g')
+axs[1].set_title("Sampled and Held Input Signal (Vin_sampled)")
+axs[1].set_ylabel("Voltage (V)")
+axs[1].legend()
+
+# 残差電圧Voutのプロット
+axs[2].plot(t, Vout, label="Residual Voltage (Vout)", color='r')
+axs[2].set_title("Residual Voltage (Vout)")
+axs[2].set_ylabel("Voltage (V)")
+axs[2].legend()
+
+# ビット出力Dのプロット
+axs[3].step(t, D, label="Bit Output (D)", where='mid', color='m')
+axs[3].set_title("Bit Output (D)")
+axs[3].set_xlabel("Time (s)")
+axs[3].set_ylabel("Bit Value")
+axs[3].legend()
+
+plt.tight_layout()
+plt.show()
