@@ -1,0 +1,113 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def bit_search(Vin, VREF):
+    """
+    1.5ビット探索アルゴリズムによるデジタル値、次の電圧、ビット出力の計算
+
+    Parameters:
+    Vin (float): 入力電圧
+    VREF (float): 基準電圧
+
+    Returns:
+    tuple: デジタル値、次の電圧、ビット出力D1、ビット出力D2
+    """
+    # 初期化
+    digital_value = 0
+    next_voltage = 0
+    D1 = 0
+    D2 = 0
+
+    # 条件 1: 0 < Vin < 3/8 * VREF
+    if 0 < Vin < (3/8) * VREF:
+        digital_value = 0
+        next_voltage = 2 * Vin
+        D1 = 0
+        D2 = 0
+    
+    # 条件 2: 3/8 * VREF <= Vin < 4/8 * VREF
+    elif (3/8) * VREF <= Vin < (4/8) * VREF:
+        digital_value = 1
+        next_voltage = 2 * Vin - (VREF / 2)
+        D1 = 1
+        D2 = 0
+    
+    # 条件 3: 4/8 * VREF <= Vin < 5/8 * VREF
+    elif (4/8) * VREF <= Vin < (5/8) * VREF:
+        digital_value = 1
+        next_voltage = 2 * Vin - (VREF / 2)
+        D1 = 0
+        D2 = 1
+    
+    # 条件 4: 5/8 * VREF <= Vin < VREF
+    elif (5/8) * VREF <= Vin < VREF:
+        digital_value = 2
+        next_voltage = 2 * Vin - VREF
+        D1 = 1
+        D2 = 1
+
+    return digital_value, next_voltage, D1, D2
+
+# 入力ランプ波（Vin）の設定
+VREF = 1.0  # 基準電圧
+Vin_values = np.linspace(0, VREF, 1000)  # 0からVREFまでの1000個の値
+digital_values = []
+next_voltages = []
+D1_values = []
+D2_values = []
+
+# すべての出力値を計算
+for Vin in Vin_values:
+    digital_value, next_voltage, D1, D2 = bit_search(Vin, VREF)
+    digital_values.append(digital_value)
+    next_voltages.append(next_voltage)
+    D1_values.append(D1)
+    D2_values.append(D2)
+
+# プロット
+plt.figure(figsize=(12, 10))
+
+# 入力Vinのプロット
+plt.subplot(3, 2, 1)
+plt.plot(Vin_values, Vin_values, label="Input Voltage (Vin)", color='blue')
+plt.title("Input Voltage (Vin)")
+plt.xlabel("Vin")
+plt.ylabel("Voltage")
+plt.grid(True)
+
+# 三レベルデジタル値
+plt.subplot(3, 2, 2)
+plt.plot(Vin_values, digital_values, label="Three-Level Digital Value", color='green')
+plt.title("Three-Level Digital Value")
+plt.xlabel("Vin")
+plt.ylabel("Digital Value")
+plt.ylim(-0.5, 2.5)  # 0, 1, 2 の範囲に設定
+plt.grid(True)
+
+# 次の電圧
+plt.subplot(3, 2, 3)
+plt.plot(Vin_values, next_voltages, label="Next Voltage", color='orange')
+plt.title("Next Voltage")
+plt.xlabel("Vin")
+plt.ylabel("Next Voltage")
+plt.grid(True)
+
+# D1の出力
+plt.subplot(3, 2, 4)
+plt.plot(Vin_values, D1_values, label="D1 Output", color='green')
+plt.title("D1 Output")
+plt.xlabel("Vin")
+plt.ylabel("D1")
+plt.grid(True)
+
+# D2の出力
+plt.subplot(3, 2, 5)
+plt.plot(Vin_values, D2_values, label="D2 Output", color='red')
+plt.title("D2 Output")
+plt.xlabel("Vin")
+plt.ylabel("D2")
+plt.grid(True)
+
+# プロットを表示
+plt.tight_layout()
+plt.show()
