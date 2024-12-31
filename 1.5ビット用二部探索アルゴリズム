@@ -50,7 +50,8 @@ def bit_search(Vin, VREF):
 
 # 入力ランプ波（Vin）の設定
 VREF = 1.0  # 基準電圧
-Vin_values = np.linspace(0, VREF, 1000)  # 0からVREFまでの1000個の値
+time_values = np.linspace(0, 1, 1000)  # 時間軸の値（0から1までの1000個の時間サンプル）
+Vin_values = VREF * time_values  # 入力電圧は線形に増加するランプ波
 digital_values = []
 next_voltages = []
 D1_values = []
@@ -69,45 +70,46 @@ plt.figure(figsize=(12, 10))
 
 # 入力Vinのプロット
 plt.subplot(3, 2, 1)
-plt.plot(Vin_values, Vin_values, label="Input Voltage (Vin)", color='blue')
-plt.title("Input Voltage (Vin)")
-plt.xlabel("Vin")
+plt.plot(time_values, Vin_values, label="Input Voltage (Vin)", color='blue')
+plt.title("Input Voltage (Vin) - Ramp Wave")
+plt.xlabel("Time (s)")
 plt.ylabel("Voltage")
 plt.grid(True)
 
 # 三レベルデジタル値
 plt.subplot(3, 2, 2)
-plt.plot(Vin_values, digital_values, label="Three-Level Digital Value", color='green')
+plt.plot(time_values, digital_values, label="Three-Level Digital Value", color='green')
 plt.title("Three-Level Digital Value")
-plt.xlabel("Vin")
+plt.xlabel("Time (s)")
 plt.ylabel("Digital Value")
 plt.ylim(-0.5, 2.5)  # 0, 1, 2 の範囲に設定
 plt.grid(True)
 
 # 次の電圧
 plt.subplot(3, 2, 3)
-plt.plot(Vin_values, next_voltages, label="Next Voltage", color='orange')
+plt.plot(time_values, next_voltages, label="Next Voltage", color='orange')
 plt.title("Next Voltage")
-plt.xlabel("Vin")
+plt.xlabel("Time (s)")
 plt.ylabel("Next Voltage")
 plt.grid(True)
 
 # D1の出力
 plt.subplot(3, 2, 4)
-plt.plot(Vin_values, D1_values, label="D1 Output", color='green')
+plt.plot(time_values, D1_values, label="D1 Output", color='green')
 plt.title("D1 Output")
-plt.xlabel("Vin")
+plt.xlabel("Time (s)")
 plt.ylabel("D1")
 plt.grid(True)
 
 # D2の出力
 plt.subplot(3, 2, 5)
-plt.plot(Vin_values, D2_values, label="D2 Output", color='red')
+plt.plot(time_values, D2_values, label="D2 Output", color='red')
 plt.title("D2 Output")
-plt.xlabel("Vin")
+plt.xlabel("Time (s)")
 plt.ylabel("D2")
 plt.grid(True)
 
 # プロットを表示
 plt.tight_layout()
 plt.show()
+
