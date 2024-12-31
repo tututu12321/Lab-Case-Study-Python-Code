@@ -1,0 +1,136 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 二部探索アルゴリズムに基づくAD変換器
+def binary_search_adc_with_vdd(Vin, VDD, VREF):
+    """
+    Binary Search ADC with VDD reference.
+    Vin: Input voltage for the ADC.
+    VDD: Supply voltage for the ADC.
+    VREF: Reference voltage to compare with Vin.
+    """
+    # 入力電圧に応じて計算
+    if Vin > VREF:
+        Vout = 2 * (Vin - VREF)  # VinがVREFより大きい場合
+        D = 1  # ビット出力は1
+    else:
+        Vout = 2 * Vin  # VinがVREFより小さい場合
+        D = 0  # ビット出力は0
+    
+    return Vout, D
+
+# シミュレーションの設定
+fs = 1000  # サンプリング周波数 (Hz)
+VDD = 5  # 電源電圧 (V)
+T = 1  # シミュレーション時間 (秒)
+t = np.linspace(0, T, fs)  # 時間軸
+
+# ランプ波の生成 (線形に増加)
+Vin_ramp = np.linspace(0, VDD, fs)
+
+# サイン波の生成
+Vin_sin = VDD / 2 * (np.sin(2 * np.pi * 1 * t) + 1)  # 1Hzのサイン波を生成（0Vから5Vの範囲）
+
+# サンプリングなしで各入力、出力、ビットを計算
+V2_ramp = np.zeros(fs)
+V3_ramp = np.zeros(fs)
+V4_ramp = np.zeros(fs)
+V5_ramp = np.zeros(fs)
+D1_ramp = np.zeros(fs)
+D2_ramp = np.zeros(fs)
+D3_ramp = np.zeros(fs)
+D4_ramp = np.zeros(fs)
+
+V2_sin = np.zeros(fs)
+V3_sin = np.zeros(fs)
+V4_sin = np.zeros(fs)
+V5_sin = np.zeros(fs)
+D1_sin = np.zeros(fs)
+D2_sin = np.zeros(fs)
+D3_sin = np.zeros(fs)
+D4_sin = np.zeros(fs)
+
+# ランプ波とサイン波でそれぞれ各ステージを計算
+for i in range(fs):
+    # ランプ波の場合
+    VREF = VDD / 2
+    V2_ramp[i], D1_ramp[i] = binary_search_adc_with_vdd(Vin_ramp[i], VDD, VREF)
+    V2REF = VDD / 2
+    V3_ramp[i], D2_ramp[i] = binary_search_adc_with_vdd(V2_ramp[i], VDD, V2REF)
+    V3REF = VDD / 2
+    V4_ramp[i], D3_ramp[i] = binary_search_adc_with_vdd(V3_ramp[i], VDD, V3REF)
+    V4REF = VDD / 2
+    V5_ramp[i], D4_ramp[i] = binary_search_adc_with_vdd(V4_ramp[i], VDD, V4REF)
+
+    # サイン波の場合
+    VREF = VDD / 2
+    V2_sin[i], D1_sin[i] = binary_search_adc_with_vdd(Vin_sin[i], VDD, VREF)
+    V2REF = VDD / 2
+    V3_sin[i], D2_sin[i] = binary_search_adc_with_vdd(V2_sin[i], VDD, V2REF)
+    V3REF = VDD / 2
+    V4_sin[i], D3_sin[i] = binary_search_adc_with_vdd(V3_sin[i], VDD, V3REF)
+    V4REF = VDD / 2
+    V5_sin[i], D4_sin[i] = binary_search_adc_with_vdd(V4_sin[i], VDD, V4REF)
+
+# プロット（入力、残差電圧、ビット出力を別々にプロット）
+fig, axs = plt.subplots(9, 1, figsize=(12, 36), sharex=True)
+
+# 入力ランプ信号とサイン波入力
+axs[0].plot(t, Vin_ramp, label="Ramp Input Signal (Vin_ramp)", color='b')
+axs[0].plot(t, Vin_sin, label="Sine Wave Input Signal (Vin_sin)", color='g', linestyle='dashed')
+axs[0].set_title("Input Signals (Vin_ramp and Vin_sin)")
+axs[0].set_ylabel("Voltage (V)")
+axs[0].legend()
+
+# 入力2の残差電圧 (V2)
+axs[1].plot(t, V2_ramp, label="V2 from Ramp Input", color='r')
+axs[1].plot(t, V2_sin, label="V2 from Sine Input", color='orange', linestyle='dashed')
+axs[1].set_title("Residual Voltage V2 (from Ramp and Sine Inputs)")
+axs[1].set_ylabel("Voltage (V)")
+axs[1].legend()
+
+# 入力3の残差電圧 (V3)
+axs[2].plot(t, V3_ramp, label="V3 from Ramp Input", color='orange')
+axs[2].plot(t, V3_sin, label="V3 from Sine Input", color='yellow', linestyle='dashed')
+axs[2].set_title("Residual Voltage V3 (from Ramp and Sine Inputs)")
+axs[2].set_ylabel("Voltage (V)")
+axs[2].legend()
+
+# 入力4の残差電圧 (V4)
+axs[3].plot(t, V4_ramp, label="V4 from Ramp Input", color='purple')
+axs[3].plot(t, V4_sin, label="V4 from Sine Input", color='brown', linestyle='dashed')
+axs[3].set_title("Residual Voltage V4 (from Ramp and Sine Inputs)")
+axs[3].set_ylabel("Voltage (V)")
+axs[3].legend()
+
+# D1: ビット出力のプロット
+axs[4].step(t, D1_ramp, label="D1 from Ramp Input", where='mid', color='m')
+axs[4].step(t, D1_sin, label="D1 from Sine Input", where='mid', color='b', linestyle='dashed')
+axs[4].set_title("Bit Output D1")
+axs[4].set_ylabel("Bit Value")
+axs[4].legend()
+
+# D2: ビット出力のプロット
+axs[5].step(t, D2_ramp, label="D2 from Ramp Input", where='mid', color='c')
+axs[5].step(t, D2_sin, label="D2 from Sine Input", where='mid', color='g', linestyle='dashed')
+axs[5].set_title("Bit Output D2")
+axs[5].set_ylabel("Bit Value")
+axs[5].legend()
+
+# D3: ビット出力のプロット
+axs[6].step(t, D3_ramp, label="D3 from Ramp Input", where='mid', color='y')
+axs[6].step(t, D3_sin, label="D3 from Sine Input", where='mid', color='r', linestyle='dashed')
+axs[6].set_title("Bit Output D3")
+axs[6].set_ylabel("Bit Value")
+axs[6].legend()
+
+# D4: ビット出力のプロット
+axs[7].step(t, D4_ramp, label="D4 from Ramp Input", where='mid', color='k')
+axs[7].step(t, D4_sin, label="D4 from Sine Input", where='mid', color='orange', linestyle='dashed')
+axs[7].set_title("Bit Output D4")
+axs[7].set_xlabel("Time (s)")
+axs[7].set_ylabel("Bit Value")
+axs[7].legend()
+
+plt.tight_layout()
+plt.show()
