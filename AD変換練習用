@@ -1,0 +1,83 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ADC Parameters
+bits = 8  # 8-bit ADC resolution
+V_ref = 5  # Reference voltage (maximum voltage for the ADC)
+n_samples = 1000  # Number of samples to simulate
+
+# サンプル数とサンプリング周波数の設定 (Sample points and sampling frequency)
+N = 12  # Number of sample points
+fs = 10 * 10**3  # Sampling frequency
+finRate = 8  # Input signal frequency rate
+
+# 入力信号としてサイン波を生成 (Generate a sine wave signal as the input)
+t = np.linspace(0, 1, n_samples)  # Time vector for 1 second
+frequency = 50  # Frequency of the input signal in Hz
+input_signal = V_ref * np.sin(2 * np.pi * frequency * t)  # Sine wave signal
+
+# ADC変換 (ADC Conversion) to simulate 8-bit ADC resolution
+digital_signal = np.round((input_signal / V_ref) * (2**bits - 1))  # Normalize and convert to digital
+
+# FFT変換 (FFT conversion)
+FFT_points = 2**N  # FFT sample points
+nyquist_points = FFT_points // 2  # Nyquist frequency
+
+# FFT処理 (Perform FFT on the digital signal)
+fft_signal = np.fft.fft(digital_signal, FFT_points)
+fft_freq = np.fft.fftfreq(FFT_points, 1/fs)
+
+# 正の周波数成分のみを取得 (Take only the positive frequency components)
+positive_freq = fft_freq[:nyquist_points]
+positive_fft = np.abs(fft_signal[:nyquist_points])
+
+# FFT結果をプロット (Plot the FFT results)
+plt.figure(figsize=(10, 6))
+
+# 入力サイン波のプロット (Plot the input sine wave signal)
+plt.subplot(2, 1, 1)
+plt.plot(t, input_signal, label="Analog Signal")
+plt.title("Input Analog Signal (Sine Wave Input)")
+plt.xlabel("Time (s)")
+plt.ylabel("Amplitude")
+plt.grid(True)
+
+# FFT結果のプロット (Plot the FFT result)
+plt.subplot(2, 1, 2)
+plt.plot(positive_freq, positive_fft, label="FFT Signal", color='r')
+plt.title("FFT of Digital Signal")
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude")
+plt.grid(True)
+
+plt.tight_layout()
+plt.show()
+
+# 周波数計算 (Frequency calculation from FFT)
+freq = []
+
+for n in range(2, N):
+    prime = np.exp(n * np.log(2)) - 1
+    fin_per_fs = prime / FFT_points
+    freq.append(fin_per_fs)
+
+# 入力信号周波数を特定 (Find the nearest frequency)
+index = np.argmin(np.abs(np.array(freq) - 1/finRate))
+
+fin = freq[index] * fs
+
+# ユニット変換 (Unit conversion)
+if len(str(int(fin))) > 10:
+    unit = ' [0] Hz'
+    fin = fin / 10**9
+elif len(str(int(fin))) > 7:
+    unit = ' [M] Hz'
+    fin = fin / 10**6
+elif len(str(int(fin))) > 4:
+    unit = ' [K] Hz'
+    fin = fin / 10**3
+else:
+    unit = ' Hz'
+
+# 周波数の出力 (Output the frequency)
+print("The frequency is " + '{:.6f}'.format(fin) + unit + ".")
